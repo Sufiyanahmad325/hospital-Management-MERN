@@ -92,4 +92,34 @@ export const addDoctor = async (req, res) => {
 
 
 
+export const getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find()
+      .populate("department", "nameOfDepartment") // doctor me user_id hai doctor ki to kya ham usme se user ka name and email lana chahte hai to ham populate kr skte hai
+      .populate("userId", "name email"); // ye user se name and email le aayega
 
+    res.status(200).json({
+      total: doctors.length,
+      doctors,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+
+export const getAllPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find();
+
+    res.status(200).json({
+      total: patients.length,
+      patients,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
