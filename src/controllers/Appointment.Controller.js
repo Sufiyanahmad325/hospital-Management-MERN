@@ -12,7 +12,7 @@ export const bookAppointment = async (req, res) => {
     const userid = req.user._id;
 
 
-    // 1️⃣ Patient
+    //  Patient profile find (User ID se)
     const patient = await Patient.findOne({ user_id: userid });
     if (!patient) {
       return res
@@ -20,7 +20,7 @@ export const bookAppointment = async (req, res) => {
         .json(new ApiResponse(404, null, "Patient profile not found"));
     }
 
-    // 2️⃣ Doctor
+    //  Doctor find (Doctor ID se)
     const doctor = await Doctor.findOne({ _id: doctorId });
     if (!doctor) {
       return res
@@ -31,7 +31,7 @@ export const bookAppointment = async (req, res) => {
 
 
 
-    // 3️⃣ Day availability check
+    // Day availability check (Doctor availableDays me wo day hai ki nahi)
     const isAvailableDate = await isDateWithin20Days(date);
     if (!isAvailableDate) {
       return res
@@ -40,6 +40,8 @@ export const bookAppointment = async (req, res) => {
           new ApiResponse(400, null, "Selected date is not available for booking")
         );
     }
+
+    // check in doctor available-days the day is available or not
     const appointmentDayName = await getDayFromDate(date);
 
     if (!doctor.availableDays.includes(appointmentDayName)) {
@@ -50,6 +52,7 @@ export const bookAppointment = async (req, res) => {
         );
     }
 
+    //  Time slot availability check (Doctor ke availableSlots me se ek free slot do)
     const isAvailableTime = await getNextFreeSlot(doctor._id, date);
 
     if (!isAvailableTime) {
@@ -60,13 +63,13 @@ export const bookAppointment = async (req, res) => {
         );
     }
 
-    //   ye is doctor ke kitne appointments hain us din ke liye wo do krega
-    // isse fayda ye hoga ek doctor ke ek din me kitne appointments hain wo pata chal jayega
+    // hare in finding total appointments for that date for that doctor
+    // if more than equal to 40 then no more appointments can be booked
     const appointmentCount = await Appointment.countDocuments({
       doctorId,
       date,
       status: "pending",
-    }); // ye sirf us din ke liye kitne appointments hain wo dikhayega or 
+    }); // it will check how many appointments are there for that doctor on that date
 
     if (appointmentCount >= 40) {
       return res
@@ -76,7 +79,7 @@ export const bookAppointment = async (req, res) => {
         );
     }
 
-    // 5️⃣ Double booking check
+    // booking check
     const existingAppointment = await Appointment.findOne({
       patientId: patient._id,
       doctorId,
@@ -95,7 +98,7 @@ export const bookAppointment = async (req, res) => {
 
 
 
-    // 6️⃣ Create appointment
+    //  Create appointment
     const appointment = await Appointment.create({
       patientId: patient._id,
       doctorId,
@@ -133,7 +136,7 @@ export const getMyAppointments = async (req, res) => {
 
     console.log(userId)
 
-    // 1️⃣ Patient profile find (User ID se)
+    // Patient profile find (User ID se)
     const patient = await Patient.findOne({ user_id: userId });
     if (!patient) {
       return res
@@ -141,9 +144,9 @@ export const getMyAppointments = async (req, res) => {
         .json(new ApiResponse(404, null, "Patient not found"));
     }
 
-    // 2️⃣ Appointments find (Patient PROFILE ID se)
+    //  Appointments find (Patient PROFILE ID se)
     const appointments = await Appointment.find({
-      patientId: patient._id,   // ✅ FIXED
+      patientId: patient._id,   
     })
       .populate("doctorId", "experience specialization ")  // doctor details ke liye
       .sort({ date: -1 }); // latest pehle
