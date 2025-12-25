@@ -3,7 +3,7 @@ import { Appointment } from "../models/appointmentSchema.js";
 
  export const getNextFreeSlot = async (doctorId, date) => {
   // doctor find karo
-  const doctor = await Doctor.findOne({doctorId: doctorId});
+  const doctor = await Doctor.findById(doctorId);
   if (!doctor) return null;
 
   // us date ke booked appointments
