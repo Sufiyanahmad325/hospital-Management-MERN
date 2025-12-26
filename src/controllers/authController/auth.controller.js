@@ -6,13 +6,13 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 export const registerPatient = asyncHandler(async (req, res) => {
   const { name, email, password, age, gender, phone, address } = req.body;
 
-  if([name, email, password, age, gender, address].some(field => field?.trim() ==="")){
-    return res.status(400).json(new ApiResponse(400 , null , "All fields except phone are required"));
+  if ([name, email, password, age, gender, address].some(field => field?.trim() === "")) {
+    return res.status(400).json(new ApiResponse(400, null, "All fields except phone are required"));
   }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return res.status(409).json(new ApiResponse(409 , null , "User with this email already exists"));
+    return res.status(409).json(new ApiResponse(409, null, "User with this email already exists"));
   }
 
 
@@ -23,16 +23,24 @@ export const registerPatient = asyncHandler(async (req, res) => {
     role: "patient",
   });
 
-  const patientData = await Patient.create({ 
-    userId: user._id ,
-    name,
-    age,
-    gender ,
-   phone: phone || "",
-    address,
-  });
+  let patientData;
+  try {
+    patientData = await Patient.create({
+      user_id: user._id,
+      name,
+      age,
+      gender,
+      phone: phone, 
+      address,
+    });
+  } catch (error) {
+    await User.findByIdAndDelete(user._id);
+    return res.status(500).json(new ApiResponse(500, null, "Error creating patient profile: " + error.message));
+  }
 
-  res.status(201).json( new ApiResponse(201 , {user , patientData} , "Patient registered successfully") );
+  
+
+   res.status(201).json(new ApiResponse(201, { user, patientData }, "Patient registered successfully"));
 });
 
 
@@ -41,7 +49,7 @@ export const registerPatient = asyncHandler(async (req, res) => {
 
 
 
-export const login = async (req, res) => {
+export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -58,11 +66,19 @@ export const login = async (req, res) => {
 
   const userData = await User.findOne({ email }).select("-password");
 
-  res.status(200).json(
+  const cookiesOptions = {
+    httpOnly: true,
+    sameSite: "Strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day  // maine schema me { expiresIn: "7d" }) de diya hai to kya yaha dena jaruri hai == haan kyuki yaha cookie ki expiry set kr rhe hai aur schema me token ki expiry set kr rhe hai dono alag cheeze hai or dono same honi chahiye taaki cookie expire hone ke baad token bhi expire ho jaye
+  };
+
+
+  res.status(200).cookie("accessToken", user.generateToken(), cookiesOptions).json(
     new ApiResponse(200, {
       userData,
       token: user.generateToken(),
       role: user.role,
     }, "Login successful")
   )
-};
+}
+);
