@@ -184,6 +184,35 @@ export const getAllCompleteAppointment = asyncHandler(async (req, res) => {
 
 
 
+export const getTodayPendingAppointments = asyncHandler(async (req, res) => {
+
+  // 📅 Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split("T")[0];
+  // example → "2025-12-29"
+
+  const pendingAppointments = await Appointment.find({
+    date: today,
+    status: "pending",
+  })
+    .populate("patientId", "name email")
+    .populate("doctorId", "name email");
+
+  if (pendingAppointments.length === 0) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, "No pending appointments for today"));
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      "Today's pending appointments fetched successfully",
+      pendingAppointments
+    )
+  );
+});
+
+
 
 
 
