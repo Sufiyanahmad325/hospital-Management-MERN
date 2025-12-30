@@ -4,7 +4,7 @@ import Sidebar from './Sidebar'
 
 function adminLayout() {
   return (
-    <div className='flex'>
+    <div className='flex flex-col md:flex-row'>
     <Sidebar/>
     <Outlet/>
     </div>
