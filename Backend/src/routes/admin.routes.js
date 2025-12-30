@@ -4,6 +4,9 @@ import {
   addDoctor,
   getAllDoctors,
   getAllPatients,
+  getAllDoctorAppointments,
+  getAllCompleteAppointment,
+  
 } from "../controllers/admin.controller.js";
 
 import { verifyJWT } from "../middlewares/verifyJWT.middleware.js";
@@ -22,5 +25,7 @@ router.post("/addDepartment", createDepartment);
 router.post("/addDoctor", addDoctor);
 router.get("/getAllDoctors", getAllDoctors);
 router.get("/getAllPatients", getAllPatients);
-
+router.get("/getAllDoctorAppointments", getAllDoctorAppointments);
+router.get("/getAllCompleteAppointment", getAllCompleteAppointment);
+router.get('/getTodayPendingAppointments', getAllCompleteAppointment);
 export default router;
