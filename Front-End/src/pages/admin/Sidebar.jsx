@@ -1,48 +1,72 @@
 import { NavLink } from "react-router-dom";
-import { MdDashboardCustomize } from "react-icons/md";
+import { MdDashboardCustomize, MdMenu } from "react-icons/md";
 import { FcDepartment } from "react-icons/fc";
 import { FaUserDoctor } from "react-icons/fa6";
 import { CiViewList } from "react-icons/ci";
 import { IoPeople } from "react-icons/io5";
+import { useState } from "react";
 
 const Sidebar = () => {
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 py-2 px-3 rounded-md transition 
-     ${isActive ? "bg-blue-400 font-bold" : "hover:bg-blue-600"}`;
+  const [show, setShow] = useState(false);
+
+  const linkStyle = ({ isActive }) =>
+    isActive
+      ? "flex items-center gap-2 bg-blue-400 py-2 px-3 rounded"
+      : "flex items-center gap-2 py-2 px-3 hover:bg-blue-600 rounded";
 
   return (
-    <div className="w-[20vw] min-h-screen bg-blue-500 text-white p-4">
-      <h2 className="text-xl font-bold mb-5">Admin Panel</h2>
+    <>
+      {/* MOBILE HEADER */}
+      <div className="sm:hidden flex justify-between items-center bg-blue-500 text-white p-3">
+        <h2 className="font-bold">Admin Panel</h2>
+        <button onClick={() => setShow(!show)}>
+          <MdMenu size={24} />
+        </button>
+      </div>
 
-      <hr className="mb-6" />
+      {/* SIDEBAR */}
+      <div
+        className={`
+          ${show ? "block" : "hidden"}
+          sm:block
+          w-[100vw] sm:w-[20vw]
+          h-[30vh]
+          sm:h-screen
+          bg-blue-500
+          text-white
+          p-4
+        `}
+      >
+        <h2 className="hidden sm:block text-lg font-bold mb-4">Admin Panel</h2>
 
-      <nav className="space-y-2">
-        <NavLink to="/admin/dashboard" className={linkClass}>
-          <MdDashboardCustomize className="text-2xl" />
-          Dashboard
-        </NavLink>
+        <nav className="space-y-1">
+          <NavLink to="/admin/dashboard" className={linkStyle}>
+            <MdDashboardCustomize />
+            Dashboard
+          </NavLink>
 
-        <NavLink to="/admin/doctors" className={linkClass}>
-          <FaUserDoctor className="text-2xl" />
-          Manage Doctors
-        </NavLink>
+          <NavLink to="/admin/doctors" className={linkStyle}>
+            <FaUserDoctor />
+            Doctors
+          </NavLink>
 
-        <NavLink to="/admin/departments" className={linkClass}>
-          <FcDepartment className="text-2xl" />
-          Manage Departments
-        </NavLink>
+          <NavLink to="/admin/departments" className={linkStyle}>
+            <FcDepartment />
+            Departments
+          </NavLink>
 
-        <NavLink to="/admin/patients" className={linkClass}>
-          <IoPeople className="text-2xl" />
-          View Patients
-        </NavLink>
+          <NavLink to="/admin/patients" className={linkStyle}>
+            <IoPeople />
+            Patients
+          </NavLink>
 
-        <NavLink to="/admin/appointments" className={linkClass}>
-          <CiViewList className="text-2xl" />
-          Appointments
-        </NavLink>
-      </nav>
-    </div>
+          <NavLink to="/admin/appointments" className={linkStyle}>
+            <CiViewList />
+            Appointments
+          </NavLink>
+        </nav>
+      </div>
+    </>
   );
 };
 
