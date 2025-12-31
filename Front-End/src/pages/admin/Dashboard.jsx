@@ -5,7 +5,7 @@ import { MdLocalHospital } from "react-icons/md";
 
 const Dashboard = () => {
   return (
-    <div className="space-y-6 w-[100vw] p-6 bg-blue-400">
+    <div className="w-[100vw] sm:space-y-6 sm:w-[75vw] p-6 bg-blue-400 sm:h-screen overflow-y-auto">
       {/* Page Title */}
       <h1 className="text-2xl font-bold text-gray-800">
         Admin Dashboard
