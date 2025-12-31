@@ -29,7 +29,7 @@ const Sidebar = () => {
         className={`
           ${show ? "block" : "hidden"}
           sm:block
-          w-[100vw] sm:w-[20vw]
+          w-[100vw] sm:w-[25vw]
           h-[30vh]
           sm:h-screen
           bg-blue-500
