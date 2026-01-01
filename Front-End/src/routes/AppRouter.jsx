@@ -7,7 +7,7 @@ import ProtectedRoute from "./ProtectedRoute";
 // Admin
 import AdminLayout from "../pages/admin/AdminLayout";
 import AdminDashboard from "../pages/admin/Dashboard";
-import Departments from "../pages/admin/Department";
+import Departments from "../pages/admin/Departments";
 import Doctors from "../pages/admin/Doctors";
 import Patients from "../pages/admin/Patients";
 import AdminAppointments from "../pages/admin/Appointments";
