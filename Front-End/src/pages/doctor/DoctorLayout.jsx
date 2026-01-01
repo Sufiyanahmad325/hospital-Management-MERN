@@ -1,8 +1,13 @@
 import React from 'react'
+import DoctorSidebar from './doctorSidebar'
+import { Outlet } from 'react-router-dom'
 
 function DoctorLayout() {
   return (
-    <div>DoctorLayout</div>
+    <div className='flex flex-col sm:flex-row'>
+      <DoctorSidebar />
+      <Outlet />
+    </div>
   )
 }
 
