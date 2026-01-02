@@ -8,7 +8,7 @@ import  ApiResponse from "../utils/ApiResponse.js";
 export const getDoctorAppointments = async (req, res) => {
   try {
     const userId = req.user.id; // from auth middleware
-    const {date} = req.query; // expected format: 'YYYY-MM-DD'
+    const {date} = req.body; // expected format: 'YYYY-MM-DD'
 
     console.log(date)
 
