@@ -1,9 +1,124 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 
-function Appointments() {
+const Appointments = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("today"); // today or all
+
+  // Demo Data
+  const [appointments, setAppointments] = useState([
+    { id: "APP-101", patientName: "Noman", doctorName: "Dr. Rahul Sharma", date: "2025-12-31", time: "10:30 AM", status: "Confirmed" },
+    { id: "APP-102", patientName: "Sajida", doctorName: "Dr. Neha Singh", date: "2025-12-31", time: "11:00 AM", status: "Pending" },
+    { id: "APP-103", patientName: "Sufiyan", doctorName: "Dr. Rahul Sharma", date: "2025-12-31", time: "12:15 PM", status: "Confirmed" },
+    { id: "APP-201", patientName: "Amit", doctorName: "Dr. Neha Singh", date: "2026-01-02", time: "09:00 AM", status: "Confirmed" },
+  ]);
+
+  // Delete/Cancel Function
+  const cancelAppointment = (id) => {
+    if (window.confirm("Are you sure you want to cancel this appointment?")) {
+      setAppointments(appointments.filter(app => app.id !== id));
+    }
+  };
+
+  // Logic for Filtering and Searching
+  const filteredAppointments = appointments.filter(app => {
+    const matchesSearch = app.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const isToday = app.date === "2025-12-31"; // Real app mein new Date() use hoga
+
+    if (filter === "today") return matchesSearch && isToday;
+    return matchesSearch;
+  });
+
   return (
-    <div>Appointments</div>
-  )
-}
+    <div className="h-screen bg-gray-50 p-6 w-full sm:w-[75vw] overflow-y-auto">
 
-export default Appointments
+      {/* HEADER & SEARCH BAR */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Appointments</h1>
+          <p className="text-sm text-gray-500">Manage daily schedules and bookings</p>
+        </div>
+
+        <div className="relative w-full md:w-80">
+          <input
+            type="text"
+            placeholder="Search by Appointment ID (e.g. APP-101)"
+            className="w-full pl-10 pr-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+        </div>
+      </div>
+
+      {/* TABS / FILTERS */}
+      <div className="flex gap-4 mb-6 border-b">
+        <button
+          onClick={() => setFilter("today")}
+          className={`pb-2 px-4 font-medium transition-all ${filter === "today" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"}`}
+        >
+          Today's Appointments
+        </button>
+        <button
+          onClick={() => setFilter("all")}
+          className={`pb-2 px-4 font-medium transition-all ${filter === "all" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"}`}
+        >
+          All Appointments
+        </button>
+      </div>
+
+      {/* APPOINTMENT CARDS LIST (Doctor Wise Grouping UI) */}
+      <div className="space-y-6">
+        {filteredAppointments.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredAppointments.map((app) => (
+              <div key={app.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-full uppercase tracking-wider">
+                      {app.id}
+                    </span>
+                    <h3 className="text-lg font-bold text-gray-800 mt-2">{app.patientName}</h3>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-blue-600">{app.time}</p>
+                    <p className="text-xs text-gray-400">{app.date}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl mb-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                    👨‍⚕️
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Doctor</p>
+                    <p className="text-sm font-medium text-gray-700">{app.doctorName}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button className="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-100 transition">
+                    Reschedule
+                  </button>
+                  <button
+                    onClick={() => cancelAppointment(app.id)}
+                    className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed">
+            <p className="text-gray-400 font-medium">No appointments found.</p>
+          </div>
+        )}
+      </div>
+
+      <div className="h-20"></div>
+    </div>
+  );
+};
+
+export default Appointments;
