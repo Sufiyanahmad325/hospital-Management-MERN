@@ -37,7 +37,7 @@ const AppRoutes = () => {
 
       {/* 👑 Admin */}
       <Route
-        path="/admin"  element={<ProtectedRoute role="admin"> <AdminLayout /> </ProtectedRoute>}
+        path="/admin" element={<ProtectedRoute role="admin"> <AdminLayout /> </ProtectedRoute>}
       >
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="departments" element={<Departments />} />
@@ -73,7 +73,7 @@ const AppRoutes = () => {
         <Route path="appointments" element={<PatientAppointments />} />
         <Route path="book-appointment" element={<BookAppointment />} />
         <Route path="profile" element={<PatientProfile />} />
-        <Route path='update-profile' element={<UpdatePatientProfile/>}/>
+        <Route path='update-profile' element={<UpdatePatientProfile />} />
       </Route>
     </Routes>
   );
