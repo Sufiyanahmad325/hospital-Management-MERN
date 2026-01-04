@@ -1,6 +1,9 @@
 // src/pages/auth/Login.jsx
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { use, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAllUsers } from "../../reduxtollkit/hospitalManagementSlice";
+import { useCookies } from "react-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -8,20 +11,30 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const {userDetails} = useSelector((state) => state.hospitalManagement);
+  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
 
-  const handleLogin = (e) => {
+  // console.log(userDetails)
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    let role = "admin"; // dummy role assignment based on email for demonstration
-    let token = "dummy-token";
+    let res =await dispatch(loginAllUsers({email, password})).unwrap();
+    if(res.success ){
+      console.log(res)
+      setCookie('accessToken', res.data.token, { path: '/', maxAge: 7 * 24 * 60 * 60 });
+      localStorage.setItem("role", res.data.role);
+    }
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
 
+    const role = localStorage.getItem("role");
+    
     if (role === "admin") navigate("/admin/dashboard");
     if (role === "doctor") navigate("/doctor/dashboard");
     if (role === "patient") navigate("/patient/dashboard");
+
   };
 
   return (
