@@ -30,7 +30,7 @@ export const getMyProfile = async (req, res) => {
 export const updateMyProfile = async (req, res) => {
   try {
     const patientId = req.user.id;
-    const { name, phone } = req.body;
+    const { name, phone ,age , address , gender } = req.body;
 
     const patient = await Patient.findOne({ user_id: patientId });
 
@@ -41,6 +41,9 @@ export const updateMyProfile = async (req, res) => {
     // Only allowed fields
     if (name) patient.name = name || patient.name;
     if (phone) patient.phone = phone || patient.phone;
+    if( age ) patient.age = age || patient.age;
+    if( address ) patient.address = address || patient.address;
+    if( gender ) patient.gender = gender || patient.gender;
 
     await patient.save(); // yaha validateBeforesave true nhi kiya to ye field update kayse ho rha hai 
 
