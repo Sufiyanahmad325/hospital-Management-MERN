@@ -53,6 +53,19 @@ export const getAllDoctors = createAsyncThunk(
 )
 
 
+export const getAllDoctorAppointments = createAsyncThunk(
+    'hospitalManagement/getAllDoctorAppointments',
+    async () => {
+        // API call simulation
+        const response = await axios.get('http://localhost:8000/hospital/admin/getAllDoctorAppointments',
+            { withCredentials: true }
+        )
+
+        console.log('hello all doctor appointments ====> ', response.data)
+        return response.data;
+    }
+)
+
 
 
 
@@ -124,7 +137,7 @@ const hospitalManagementSlice = createSlice({
                         return appointment;
                     }
                 });   // array
-                
+
             })
             .addCase(todayAllAppointments.rejected, (state, action) => {
                 state.isLoading = false;
