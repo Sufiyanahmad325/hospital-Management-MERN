@@ -6,7 +6,7 @@ export const loginAllUsers = createAsyncThunk(
     'hospitalManagement/loginAllUsers',
     async (userEmailPassword) => {
         // API call simulation
-        const response = await axios.post('http://localhost:8000/hospital/auth/login', userEmailPassword)
+        const response = await axios.post('http://localhost:8000/hospital/auth/login', userEmailPassword, { withCredentials: true })
         localStorage.setItem("role", response.data.role);
         return response.data;
     }
@@ -17,12 +17,14 @@ export const loginAllUsers = createAsyncThunk(
 
 export const createDepartment = createAsyncThunk(
     'hospitalManagement/createDepartment',
-    async (nameOfDepartment, description) => {
+    async ({ nameOfDepartmentDescription }) => {
         // API call simulation
         const response = await axios.post('http://localhost:8000/hospital/admin/addDepartment', {
-            nameOfDepartment,
-            description,
-        })
+            nameOfDepartmentDescription
+        },
+            {
+                withCredentials: true
+            })
         return response.data;
     }
 )
@@ -39,6 +41,19 @@ export const todayAllAppointments = createAsyncThunk(
 )
 
 
+export const getAllDoctors = createAsyncThunk(
+    'hospitalManagement/getAllDoctors',
+    async () => {
+        // API call simulation
+        const response = await axios.get('http://localhost:8000/hospital/admin/getAllDoctors',
+            { withCredentials: true }
+        )
+        return response.data;
+    }
+)
+
+
+
 
 
 
@@ -48,7 +63,7 @@ const initialState = {
     userDetails: [],
     totalTodayAppointments: [],
     todayPendingCompletedAppointments: [],
-    totalAppointments: [],
+    totalDoctorsAppointments: [],
     totalDoctors: [],
     totalPatients: [],
     totalDepartments: [],
@@ -81,26 +96,56 @@ const hospitalManagementSlice = createSlice({
                 state.error = action.error.message;
             })
 
+            //  admin get all doctors ===================================
 
+            .addCase(getAllDoctors.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getAllDoctors.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.totalDoctors = action.payload.doctors;   // array
+            })
+            .addCase(getAllDoctors.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
 
-            // Today all appointments==================================
+            // admin Today all appointments==================================
 
             .addCase(todayAllAppointments.pending, (state, action) => {
                 state.isLoading = true;
             })
             .addCase(todayAllAppointments.fulfilled, (state, action) => {
                 state.isLoading = false;
-                action.payload.data.filter(appointment => {
+                state.totalTodayAppointments = action.payload.data;
+
+                state.todayPendingCompletedAppointments = action.payload.data.filter(appointment => {
                     if (appointment.status === 'pending' || appointment.status === 'completed') {
-                        state.todayPendingCompletedAppointments.push(appointment);
+                        return appointment;
                     }
-                    state.totalTodayAppointments = action.payload.data;
-                })
+                });   // array
+                
             })
             .addCase(todayAllAppointments.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+
+            // admin get all doctor appointments ================================
+            .addCase(getAllDoctorAppointments.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getAllDoctorAppointments.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.totalDoctorsAppointments = action.payload.data;   // array
+            })
+            .addCase(getAllDoctorAppointments.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+           
     }
 })
 
