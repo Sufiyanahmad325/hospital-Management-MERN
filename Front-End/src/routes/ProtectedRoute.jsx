@@ -1,8 +1,12 @@
 // src/routes/ProtectedRoute.jsx
+import { useCookies } from "react-cookie";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, role }) => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
+  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+
+  const token = cookies.accessToken;
   const userRole = localStorage.getItem("role"); // admin / doctor / patient
 
   if (!token) return <Navigate to="/" />;
