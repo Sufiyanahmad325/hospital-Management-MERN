@@ -90,7 +90,17 @@ export const getAllDepartments = createAsyncThunk(
 )
 
 
-
+export const addDoctor = createAsyncThunk(
+    'hospitalManagement/addDoctor',
+    async ({ doctorDetails }) => {
+        const response = axios.post('http://localhost:8000/hospital/admin/addDoctor', doctorDetails,
+            {
+                withCredentials: true
+            }
+        )
+        return response.data
+    }
+)
 
 
 
@@ -211,7 +221,18 @@ const hospitalManagementSlice = createSlice({
                 state.error = action.error.message;
             })
 
+            // admin add doctor
 
+            .addCase(addDoctor.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(addDoctor.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(addDoctor.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
     }
 })
 
