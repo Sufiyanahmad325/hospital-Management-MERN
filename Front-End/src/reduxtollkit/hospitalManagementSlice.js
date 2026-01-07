@@ -78,6 +78,19 @@ export const getAllPatients = createAsyncThunk(
 )
 
 
+export const getAllDepartments = createAsyncThunk(
+    'hospitalManagement/getAllDepartments',
+    async () => {
+        // API call simulation
+        const response = await axios.get('http://localhost:8000/hospital/admin/getAllDepartments',
+            { withCredentials: true }
+        )
+        return response.data;
+    }
+)
+
+
+
 
 
 
@@ -184,7 +197,21 @@ const hospitalManagementSlice = createSlice({
             })
 
 
-            
+            // admin get all departments ================================
+            .addCase(getAllDepartments.pending, (state, action) => {
+                state.isLoading = true;
+            })
+
+            .addCase(getAllDepartments.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.totalDepartments = action.payload.data;   // array
+            })
+            .addCase(getAllDepartments.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
     }
 })
 
