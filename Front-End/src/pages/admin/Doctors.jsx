@@ -1,10 +1,82 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const Doctors = () => {
+
+  const specialization = ["Interventional Cardiology",
+
+    "Pediatric Cardiology",
+
+    "Electrophysiology",
+
+    "Heart Failure Specialist",
+
+    "Preventive Cardiology",
+
+
+
+    // 🧠 Brain
+
+    "Neurologist",
+
+    "Neurosurgeon",
+
+    "Neurocritical Care Specialist",
+
+
+
+    // 🍽️ Stomach
+
+    "Gastroenterologist",
+
+    "Hepatologist",
+
+  ]
+
+
+  const slots = [
+    "11:00 AM",
+    "11:15 AM",
+    "11:30 AM",
+    "11:45 AM",
+    "12:00 PM",
+    "12:15 PM",
+    "12:30 PM",
+    "12:45 PM",
+    "01:00 PM",
+    "01:15 PM",
+    "01:30 PM",
+    "01:45 PM",
+    "02:00 PM",
+    "02:15 PM",
+    "02:30 PM",
+    "02:45 PM",
+    "03:00 PM",
+    "03:15 PM",
+    "03:30 PM",
+    "03:45 PM",
+    "04:00 PM"
+  ]
+  const { totalDepartments } = useSelector((state) => state.hospitalManagement)
+
+  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false)
+  const [doctorFrom, setDoctorFrom] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    departmentId: "",
+    specialization: "",
+    description: "",
+    experience: "",
+    availableDays: [],
+    availableSlots: []
+  })
+
+
+  console.log("hahahahaha ====> ", doctorFrom.availableSlots)
+
   return (
-    /* 1. h-screen: Puri screen ki height fix kar di.
-       2. overflow-y-auto: Jab content lamba hoga, sirf ye div scroll hoga.
-    */
+
     <div className="h-screen bg-blue-400 text-gray-800 overflow-y-auto w-full sm:w-[75vw] p-6 custom-scrollbar">
 
       {/* PAGE TITLE */}
@@ -20,11 +92,24 @@ const Doctors = () => {
 
         {/* BASIC INFO */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input placeholder="Doctor Name" className="border p-2 rounded focus:outline-blue-400" />
-          <input placeholder="Email" className="border p-2 rounded focus:outline-blue-400" />
-          <input placeholder="Phone Number" className="border p-2 rounded focus:outline-blue-400" />
-          <input placeholder="Department Name" className="border p-2 rounded focus:outline-blue-400" />
-          <input placeholder="Specialization" className="border p-2 rounded focus:outline-blue-400" />
+          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, name: e.target.value }))} placeholder="Doctor Name" className="border p-2 rounded focus:outline-blue-400" />
+          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, email: e.target.value }))} placeholder="Email" className="border p-2 rounded focus:outline-blue-400" />
+          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, phone: e.target.value }))} placeholder="Phone Number" className="border p-2 rounded focus:outline-blue-400" />
+
+        </div>
+
+        {/* // Department */}
+
+        <div className="mt-4">
+          <p className="p-1 font-medium">Departments</p>
+          <select name="" id="" onChange={(e) => setDoctorFrom(prev => ({ ...prev, departmentId: e.target.value }))} className="border border-black w-full p-2 rounded-md focus:outline-blue-400">
+            <option value="">Departments</option>
+            {
+              totalDepartments?.map((ele, ind) => (
+                <option className="bg-green-200" key={ind} value={ele._id}>{ele.nameOfDepartment}</option>
+              ))
+            }
+          </select>
         </div>
 
         {/* EXPERIENCE */}
@@ -36,11 +121,13 @@ const Doctors = () => {
         {/* SPECIALIZATION DROPDOWN */}
         <div className="mt-4">
           <p className="mb-1 font-medium">Specialization</p>
-          <select className="border p-2 rounded w-full focus:outline-blue-400">
-            <option>Select Specialization</option>
-            <option>Cardiology</option>
-            <option>Neurology</option>
-            <option>Pediatrics</option>
+          <select onChange={(e) => setDoctorFrom(prev => ({ ...prev, specialization: e.target.value }))} className="  border p-2 rounded w-full focus:outline-blue-400">
+            <option value="">specialization</option>
+            {
+              specialization?.map((option, ind) => (
+                <option className="bg-green-200" value={option} key={ind}>{option}</option>
+              ))
+            }
           </select>
         </div>
 
@@ -50,9 +137,51 @@ const Doctors = () => {
           <div className="flex flex-wrap gap-4">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
               <label key={day} className="flex items-center gap-1 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4" /> {day}
+                <input
+                  value={day}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setDoctorFrom((prev) => ({
+                        ...prev, availableDays: [...prev.availableDays, day]
+                      }))
+                    } else {
+                      let a = doctorFrom.availableDays.filter(ele => ele != day)
+                      setDoctorFrom(prev => ({ ...prev, availableDays: [...a] }))
+                    }
+
+                  }}
+
+                  type="checkbox" className="w-4 h-4" /> {day}
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* //  AvailableTimeSlots */}
+        <div className="mt-4">
+          <p>Available Time Slots</p>
+          <div className=" w-full flex gap-4 flex-wrap">
+            {
+              slots.map((time, ind) => (
+                <label key={ind} id={ind} className="flex items-center justify-center bg-gray-100" >
+                  <input
+                  value={time} type="checkbox" id={ind}
+                   className="w-4 h-4" 
+                  onChange={(e)=>{
+                    if(e.target.checked){
+                      setDoctorFrom(prev=>({
+                        ...prev , availableSlots:[...prev.availableSlots,time]
+                      }))
+                    }else{
+                      let a = doctorFrom.availableSlots.filter(ele=> ele != time)
+                      setDoctorFrom(prev=> ({...prev , availableSlots:[...a]}))
+                    }
+                  }}
+                  />
+                  {time}
+                </label>
+              ))
+            }
           </div>
         </div>
 
@@ -107,6 +236,29 @@ const Doctors = () => {
           </table>
         </div>
       </div>
+
+      {
+        addSuccessfullyDoctor && (
+          <div className="fixed inset-0  flex items-center justify-center z-50">
+
+            <div className="bg-green-200 w-[90%] sm:w-[30%] p-6 rounded-lg shadow-lg text-center">
+
+              <h2 className="text-xl font-bold text-green-800 mb-3">
+                Doctor has been Added Successfully
+              </h2>
+
+              <button
+                className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold"
+                onClick={(e) => setAddSuccessfullyDoctor(false)}
+              >
+                OK
+              </button>
+
+            </div>
+          </div>
+        )
+      }
+
     </div>
   );
 };
