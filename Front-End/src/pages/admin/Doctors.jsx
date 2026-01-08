@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addDoctor, getAllDoctors } from "../../reduxtollkit/hospitalManagementSlice";
 
 const Doctors = () => {
 
@@ -32,8 +33,7 @@ const Doctors = () => {
     "Hepatologist",
 
   ]
-
-
+  const [doctorLoginDetails, setDoctorLoginDetails] = useState({})
   const slots = [
     "11:00 AM",
     "11:15 AM",
@@ -58,8 +58,7 @@ const Doctors = () => {
     "04:00 PM"
   ]
   const { totalDepartments } = useSelector((state) => state.hospitalManagement)
-
-  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false)
+  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(true)
   const [doctorFrom, setDoctorFrom] = useState({
     name: "",
     email: "",
@@ -71,9 +70,80 @@ const Doctors = () => {
     availableDays: [],
     availableSlots: []
   })
+  const { totalDoctors } = useSelector(state => state.hospitalManagement)
 
+  const dispatch = useDispatch()
 
-  console.log("hahahahaha ====> ", doctorFrom.availableSlots)
+  const handleAddDoctor = async () => {
+    // 🔴 BASIC VALIDATION
+    if (!doctorFrom.name.trim()) {
+      alert("Doctor name is required");
+      return;
+    }
+
+    if (!doctorFrom.email.trim()) {
+      alert("Email is required");
+      return;
+    }
+
+    if (!doctorFrom.phone.trim()) {
+      alert("Phone number is required");
+      return;
+    }
+
+    if (!doctorFrom.departmentId) {
+      alert("Please select department");
+      return;
+    }
+
+    if (!doctorFrom.specialization) {
+      alert("Please select specialization");
+      return;
+    }
+
+    if (!doctorFrom.experience || doctorFrom.experience <= 0) {
+      alert("Experience must be greater than 0");
+      return;
+    }
+
+    if (doctorFrom.availableDays.length === 0) {
+      alert("Please select available days");
+      return;
+    }
+
+    if (doctorFrom.availableSlots.length === 0) {
+      alert("Please select available slots");
+      return;
+    }
+
+    // 🟢 API CALL
+    try {
+      const response = await dispatch(addDoctor(doctorFrom)).unwrap();
+      console.log("Doctor added:", response);
+
+      setAddSuccessfullyDoctor(true);
+
+      setDoctorLoginDetails(response.loginCredentials)
+
+      dispatch(getAllDoctors())
+      // 🔄 RESET FORM
+      setDoctorFrom({
+        name: "",
+        email: "",
+        phone: "",
+        departmentId: "",
+        specialization: "",
+        description: "",
+        experience: "",
+        availableDays: [],
+        availableSlots: []
+      });
+
+    } catch (error) {
+      console.log("Add doctor failed:", error);
+      alert(error?.message || "Something went wrong");
+    }
+  };
 
   return (
 
@@ -115,7 +185,9 @@ const Doctors = () => {
         {/* EXPERIENCE */}
         <div className="mt-4">
           <p className="mb-1 font-medium">Experience (Years)</p>
-          <input placeholder="Experience" className="border p-2 rounded w-full focus:outline-blue-400" />
+          <input placeholder="Experience" onChange={(e) =>
+            setDoctorFrom(prev => ({ ...prev, experience: Number(e.target.value) }))
+          } className="border p-2 rounded w-full focus:outline-blue-400" />
         </div>
 
         {/* SPECIALIZATION DROPDOWN */}
@@ -165,18 +237,18 @@ const Doctors = () => {
               slots.map((time, ind) => (
                 <label key={ind} id={ind} className="flex items-center justify-center bg-gray-100" >
                   <input
-                  value={time} type="checkbox" id={ind}
-                   className="w-4 h-4" 
-                  onChange={(e)=>{
-                    if(e.target.checked){
-                      setDoctorFrom(prev=>({
-                        ...prev , availableSlots:[...prev.availableSlots,time]
-                      }))
-                    }else{
-                      let a = doctorFrom.availableSlots.filter(ele=> ele != time)
-                      setDoctorFrom(prev=> ({...prev , availableSlots:[...a]}))
-                    }
-                  }}
+                    value={time} type="checkbox" id={ind}
+                    className="w-4 h-4"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setDoctorFrom(prev => ({
+                          ...prev, availableSlots: [...prev.availableSlots, time]
+                        }))
+                      } else {
+                        let a = doctorFrom.availableSlots.filter(ele => ele != time)
+                        setDoctorFrom(prev => ({ ...prev, availableSlots: [...a] }))
+                      }
+                    }}
                   />
                   {time}
                 </label>
@@ -190,16 +262,21 @@ const Doctors = () => {
           <p className="mb-1 font-medium">Description</p>
           <textarea
             placeholder="Doctor Description"
+            value={doctorFrom.description}
+            onChange={(e) =>
+              setDoctorFrom(prev => ({ ...prev, description: e.target.value }))
+            }
+
             className="border p-2 rounded w-full h-24 focus:outline-blue-400"
           />
         </div>
 
-        <button className="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-all">
+        <button className="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-all" onClick={(e) => handleAddDoctor()}>
           Add Doctor
         </button>
       </div>
 
-      {/* ================= DOCTORS LIST ================= */}
+      {/* =================   DOCTORS LIST  ================================================ */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-10">
         <h2 className="text-lg font-semibold text-green-600 mb-4">
           All Doctors
@@ -218,18 +295,14 @@ const Doctors = () => {
               </tr>
             </thead>
             <tbody>
-              {[
-                { name: "Dr. Rahul Sharma", email: "rahul@gmail.com", dept: "Cardiology", spec: "Heart Specialist", exp: "5 Years", days: "Mon, Wed, Fri" },
-                { name: "Dr. Neha Singh", email: "neha@gmail.com", dept: "Neurology", spec: "Brain Specialist", exp: "3 Years", days: "Tue, Thu" },
-                { name: "Dr. Amit Verma", email: "amit@gmail.com", dept: "Pediatrics", spec: "Child Specialist", exp: "8 Years", days: "Mon, Sat" }
-              ].map((doc, index) => (
+              {totalDoctors?.map((doc, index) => (
                 <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="border p-2">{doc.name}</td>
-                  <td className="border p-2">{doc.email}</td>
-                  <td className="border p-2">{doc.dept}</td>
-                  <td className="border p-2">{doc.spec}</td>
-                  <td className="border p-2">{doc.exp}</td>
-                  <td className="border p-2">{doc.days}</td>
+                  <td className="border p-2">{doc.user_id.name}</td>
+                  <td className="border p-2">{doc.user_id.email}</td>
+                  <td className="border p-2">{doc.department.nameOfDepartment}</td>
+                  <td className="border p-2">{doc.specialization}</td>
+                  <td className="border p-2">{doc.experience}</td>
+                  <td className="border p-2">{doc.availableDays.join(',')}</td>
                 </tr>
               ))}
             </tbody>
@@ -245,6 +318,12 @@ const Doctors = () => {
 
               <h2 className="text-xl font-bold text-green-800 mb-3">
                 Doctor has been Added Successfully
+              </h2>
+              <h2 className="text-md font-bold text-green-800 mb-3">
+                Doctor email {doctorLoginDetails.email}
+              </h2>
+              <h2 className="text-md font-bold text-green-800 mb-3">
+                Doctor password {doctorLoginDetails.password}
               </h2>
 
               <button
