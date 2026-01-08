@@ -48,7 +48,8 @@ export const getAllDoctors = createAsyncThunk(
         const response = await axios.get('http://localhost:8000/hospital/admin/getAllDoctors',
             { withCredentials: true }
         )
-        return response.data;
+        console.log('hahahahhahahaha====> ' , response.data.data)
+        return response.data.data;
     }
 )
 
@@ -91,16 +92,25 @@ export const getAllDepartments = createAsyncThunk(
 
 
 export const addDoctor = createAsyncThunk(
-    'hospitalManagement/addDoctor',
-    async ({ doctorDetails }) => {
-        const response = axios.post('http://localhost:8000/hospital/admin/addDoctor', doctorDetails,
-            {
-                withCredentials: true
-            }
-        )
-        return response.data
+  "hospitalManagement/addDoctor",
+  async (doctorDetails, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/hospital/admin/addDoctor",
+        doctorDetails,
+        { withCredentials: true }
+      );
+
+      return response.data; // ✅ success
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Something went wrong"
+      );
     }
-)
+  }
+);
+
+
 
 
 
