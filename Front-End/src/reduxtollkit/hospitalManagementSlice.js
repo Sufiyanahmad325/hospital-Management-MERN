@@ -48,7 +48,7 @@ export const getAllDoctors = createAsyncThunk(
         const response = await axios.get('http://localhost:8000/hospital/admin/getAllDoctors',
             { withCredentials: true }
         )
-        console.log('hahahahhahahaha====> ' , response.data.data)
+        console.log('hahahahhahahaha====> ', response.data.data)
         return response.data.data;
     }
 )
@@ -92,26 +92,38 @@ export const getAllDepartments = createAsyncThunk(
 
 
 export const addDoctor = createAsyncThunk(
-  "hospitalManagement/addDoctor",
-  async (doctorDetails, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/hospital/admin/addDoctor",
-        doctorDetails,
-        { withCredentials: true }
-      );
+    "hospitalManagement/addDoctor",
+    async (doctorDetails, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                "http://localhost:8000/hospital/admin/addDoctor",
+                doctorDetails,
+                { withCredentials: true }
+            );
 
-      return response.data; // ✅ success
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || "Something went wrong"
-      );
+            return response.data; // ✅ success
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || "Something went wrong"
+            );
+        }
     }
-  }
 );
 
 
-
+export const addDepartment = createAsyncThunk(
+    "hopitalMangement/addDepartment",
+    async (departmentDetails, { rejectWithValue }) => {
+        try {
+            const response = await axios.post('http://localhost:8000/hospital/admin/addDepartment', departmentDetails,
+                { withCredentials: true }
+            )
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "something went wrong")
+        }
+    }
+)
 
 
 const initialState = {
@@ -243,6 +255,23 @@ const hospitalManagementSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+
+            // admin add departments
+
+            .addCase(addDepartment.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(addDepartment.fulfilled, (state, action) => {
+                state.totalDepartments.push(action.payload.department)
+            })
+            .addCase(addDepartment.rejected, (state, action) => {
+                state.isLoading = true
+                state.error = action.payload;
+            })
+
+
+            
     }
 })
 
