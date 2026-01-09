@@ -57,8 +57,8 @@ const Doctors = () => {
     "03:45 PM",
     "04:00 PM"
   ]
-  const { totalDepartments } = useSelector((state) => state.hospitalManagement)
-  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(true)
+  const { totalDepartments ,totalDoctors } = useSelector((state) => state.hospitalManagement)
+  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false)
   const [doctorFrom, setDoctorFrom] = useState({
     name: "",
     email: "",
@@ -70,7 +70,7 @@ const Doctors = () => {
     availableDays: [],
     availableSlots: []
   })
-  const { totalDoctors } = useSelector(state => state.hospitalManagement)
+  
 
   const dispatch = useDispatch()
 
@@ -119,7 +119,6 @@ const Doctors = () => {
     // 🟢 API CALL
     try {
       const response = await dispatch(addDoctor(doctorFrom)).unwrap();
-      console.log("Doctor added:", response);
 
       setAddSuccessfullyDoctor(true);
 
@@ -140,7 +139,6 @@ const Doctors = () => {
       });
 
     } catch (error) {
-      console.log("Add doctor failed:", error);
       alert(error?.message || "Something went wrong");
     }
   };
