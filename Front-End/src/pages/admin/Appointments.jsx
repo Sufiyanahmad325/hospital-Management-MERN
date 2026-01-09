@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Appointments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("today"); // today or all
+
+  const dispatch = useDispatch()
 
   // Demo Data
   const [appointments, setAppointments] = useState([
@@ -12,6 +15,9 @@ const Appointments = () => {
     { id: "APP-201", patientName: "Amit", doctorName: "Dr. Neha Singh", date: "2026-01-02", time: "09:00 AM", status: "Confirmed" },
   ]);
 
+  const {totalDoctorsAppointments} = useSelector((state)=> state.hospitalManagement)
+
+  console.log(totalDoctorsAppointments)
   // Delete/Cancel Function
   const cancelAppointment = (id) => {
     if (window.confirm("Are you sure you want to cancel this appointment?")) {
@@ -20,9 +26,9 @@ const Appointments = () => {
   };
 
   // Logic for Filtering and Searching
-  const filteredAppointments = appointments.filter(app => {
-    const matchesSearch = app.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const isToday = app.date === "2025-12-31"; // Real app mein new Date() use hoga
+  const filteredAppointments = totalDoctorsAppointments.filter(app => { //ye kab chalega
+    const matchesSearch = app._id.includes(searchTerm.toLowerCase()); // ye line kab chale
+    const isToday = app.date === new Date().toISOString().split("T")[0]; // Real app mein new Date() use hoga ye line kab chalega
 
     if (filter === "today") return matchesSearch && isToday;
     return matchesSearch;
@@ -75,12 +81,12 @@ const Appointments = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-full uppercase tracking-wider">
-                      {app.id}
+                      {app._id}
                     </span>
-                    <h3 className="text-lg font-bold text-gray-800 mt-2">{app.patientName}</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mt-2">{app.patientId.name}</h3>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-blue-600">{app.time}</p>
+                    <p className="text-sm font-semibold text-blue-600">{app.timeSlot}</p>
                     <p className="text-xs text-gray-400">{app.date}</p>
                   </div>
                 </div>
@@ -91,7 +97,7 @@ const Appointments = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Doctor</p>
-                    <p className="text-sm font-medium text-gray-700">{app.doctorName}</p>
+                    <p className="text-sm font-medium text-gray-700">{app.doctorId.user_id.name}</p>
                   </div>
                 </div>
 
