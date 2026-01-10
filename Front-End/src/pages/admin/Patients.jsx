@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { MdDeleteForever } from "react-icons/md";
+import { deletePatientFromUser } from '../../reduxtollkit/hospitalManagementSlice';
 
 const PatientCards = () => {
   // 1. State for patients
@@ -8,7 +9,15 @@ const PatientCards = () => {
 
   const {totalPatients} = useSelector((state)=>state.hospitalManagement)
 
+  const dispatch = useDispatch()
 
+const handleDeletePatient =async(id)=>{
+  try {
+    let res =await dispatch(deletePatientFromUser({id:id})).unwrap()
+  } catch (error) {
+      console.log(error)
+  }
+}
 
   // Demo Data (Jo aapne format diya tha)
   useEffect(() => {
@@ -91,7 +100,9 @@ const PatientCards = () => {
             </div>
 
             <div className="mt-5 flex gap-2 ">
-              <button className="flex w-full py-1 rounded-md justify-center border-2 border-gray-300 hover:bg-blue-200 transition-all ">
+              <button
+              onClick={()=>handleDeletePatient(patient._id)}
+               className="flex w-full py-1 rounded-md justify-center border-2 border-gray-300 hover:bg-blue-200 transition-all ">
                <MdDeleteForever className='font-bold text-2xl' />
               </button>
               
