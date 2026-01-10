@@ -140,7 +140,23 @@ export const editDepartment = createAsyncThunk(
     }
 )
 
+export const deletePatientFromUser = createAsyncThunk(
+    'hospitalMagement/deletePatientFromUser',
+    async (id, { rejectWithValue }) => {
+        console.log('first' , id)
+        try {
+            const response = await axios.post('http://localhost:8000/hospital/admin/deletePatientWithUser',
+                id,
+                { withCredentials: true }
+            )
 
+            return response.data
+
+        } catch (error) {
+            return rejectWithValue(error.response?.message || 'something went wronge')
+        }
+    }
+)
 
 
 const initialState = {
@@ -312,7 +328,17 @@ const hospitalManagementSlice = createSlice({
 
             // deletePatientFromUser
 
-
+            .addCase(deletePatientFromUser.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(deletePatientFromUser.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.totalPatients = action.payload.patients
+            })
+            .addCase(deletePatientFromUser.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message;
+            })
 
 
 
