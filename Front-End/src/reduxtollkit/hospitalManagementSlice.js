@@ -112,7 +112,7 @@ export const addDoctor = createAsyncThunk(
 
 
 export const addDepartment = createAsyncThunk(
-    "hopitalMangement/addDepartment",
+    "hospitalMangement/addDepartment",
     async (departmentDetails, { rejectWithValue }) => {
         try {
             const response = await axios.post('http://localhost:8000/hospital/admin/addDepartment', departmentDetails,
@@ -124,6 +124,23 @@ export const addDepartment = createAsyncThunk(
         }
     }
 )
+
+export const editDepartment = createAsyncThunk(
+    "hospitalMangement/editDepartment",
+    async (departmentDetails, { rejectWithValue }) => {
+        try {
+            const response = await axios.put('http://localhost:8000/hospital/admin/editDepartmentDetails',
+                departmentDetails,
+                { withCredentials: true }
+            )
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "something went wrong")
+        }
+    }
+)
+
+
 
 
 const initialState = {
@@ -137,6 +154,7 @@ const initialState = {
     totalPatients: [],
     totalDepartments: [],
     isLoading: false,
+    isEditDepartment: null
 }
 
 
@@ -147,7 +165,12 @@ const hospitalManagementSlice = createSlice({
     name: 'hospitalManagement',
     initialState,
     reducers: {
-
+        setEditDepartment: (state, action) => {
+            state.isEditDepartment = action.payload
+        },
+        clearSetEditDepartment: (state, action) => {
+            state.isEditDepartment = null
+        }
     },
     extraReducers: (builder) => {
         //  login all users
@@ -264,18 +287,39 @@ const hospitalManagementSlice = createSlice({
             })
             .addCase(addDepartment.fulfilled, (state, action) => {
                 state.totalDepartments.push(action.payload.department)
+                state.isLoading = false;
             })
             .addCase(addDepartment.rejected, (state, action) => {
-                state.isLoading = true
-                state.error = action.payload;
+                state.isLoading = false
+                state.error = action.error.message;
             })
 
 
-            
+            // admin  edit department
+
+            .addCase(editDepartment.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(editDepartment.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.isEditDepartment = null
+            })
+            .addCase(editDepartment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message;
+            })
+
+
+            // deletePatientFromUser
+
+
+
+
+
     }
 })
 
-export const { increment, decrement, reset } = hospitalManagementSlice.actions
+export const { setEditDepartment, clearSetEditDepartment } = hospitalManagementSlice.actions
 
 export const hospitalManagementSliceReducer = hospitalManagementSlice.reducer
 
