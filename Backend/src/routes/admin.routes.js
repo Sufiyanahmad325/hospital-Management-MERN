@@ -6,7 +6,13 @@ import {
   getAllPatients,
   getAllDoctorAppointments,
   getAllCompleteAppointment,
-  
+  ChangeDoctorPasswordByAdmin,
+  getTodayAllAppointments,
+  getAllDepartments,
+  editDepartmentDetails,
+  deletePatientWithUser,
+  cancelAppointmentByAdmin,
+
 } from "../controllers/admin.controller.js";
 
 import { verifyJWT } from "../middlewares/verifyJWT.middleware.js";
@@ -27,5 +33,11 @@ router.get("/getAllDoctors", getAllDoctors);
 router.get("/getAllPatients", getAllPatients);
 router.get("/getAllDoctorAppointments", getAllDoctorAppointments);
 router.get("/getAllCompleteAppointment", getAllCompleteAppointment);
-router.get('/getTodayPendingAppointments', getAllCompleteAppointment);
+router.get('/getTodayAppointments', getTodayAllAppointments);
+router.get('/getAllDepartments', getAllDepartments);
+router.put("/ChangeDoctorPasswordByAdmin/:doctorId", ChangeDoctorPasswordByAdmin);
+router.put('/editDepartmentDetails', editDepartmentDetails)
+router.post('/deletePatientWithUser', deletePatientWithUser)
+router.post('/cancelAppointmentByAdmin/:appointmentId', cancelAppointmentByAdmin)
 export default router;
+
