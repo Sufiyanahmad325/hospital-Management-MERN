@@ -5,9 +5,25 @@ import { FaUserDoctor } from "react-icons/fa6";
 import { CiViewList } from "react-icons/ci";
 import { IoPeople } from "react-icons/io5";
 import { useState } from "react";
+import { useCookies } from "react-cookie";
+import { CiLogout } from "react-icons/ci";
 
 const Sidebar = () => {
   const [show, setShow] = useState(false);
+   const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+
+const handleLogout = () => {
+  removeCookie("accessToken", {
+    path: "/",
+    sameSite: "lax",
+  });
+
+  localStorage.removeItem("role");
+      console.log(cookies.accessToken)
+
+};
+
+
 
   const linkStyle = ({ isActive }) =>
     isActive
@@ -64,6 +80,12 @@ const Sidebar = () => {
             <CiViewList />
             Appointments
           </NavLink>
+
+
+          <button onClick={()=>handleLogout()} className={`flex gap-4 items-center px-2`}>
+            <CiLogout />
+            Logout
+          </button>
         </nav>
       </div>
     </>
