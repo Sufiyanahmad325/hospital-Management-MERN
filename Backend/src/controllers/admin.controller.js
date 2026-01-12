@@ -391,7 +391,60 @@ export const ChangeDoctorPasswordByAdmin = asyncHandler(async (req, res) => {
 });
 
 
+export const deletePatientWithUser = asyncHandler(async (req, res) => {
+  const { id } = req.body
 
+  if (!id) {
+    throw new ApiError(401, 'user Id required')
+  }
+
+  const isAdmin = await User.findById(req.user._id)
+
+  if (!isAdmin || isAdmin.role != 'admin') {
+    res.status(401).json(
+      {
+        success: false,
+        message: 'only admin can access'
+      }
+    )
+  }
+
+  const patient = await Patient.findById(id)
+
+  if (!patient) {
+    res.status(401).json(
+      {
+        success: false,
+        message: 'patient does not exists'
+      }
+    )
+  }
+
+  const user = await User.findById(patient.user_id)
+  if (!patient) {
+    res.status(401).json(
+      {
+        success: false,
+        message: 'user does not exists'
+      }
+    )
+  }
+
+
+  const PatientUser = await User.findByIdAndDelete(patient.user_id)
+  const remove = await Patient.findByIdAndDelete(patient._id)
+
+
+  const patients = await Patient.find()
+
+  res.status(201).json({
+    success: true,
+    patients,
+    message: 'patient has been remove successfully'
+  })
+
+
+})
 
 
 
