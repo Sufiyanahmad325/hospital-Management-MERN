@@ -354,6 +354,43 @@ export const cancelAppointmentByAdmin = asyncHandler(async (req, res) => {
 
 
 
+export const ChangeDoctorPasswordByAdmin = asyncHandler(async (req, res) => {
+  const { doctorId } = req.params;
+  console.log('doctorId ===========> ', doctorId)
+  const { newPassword } = req.body;
+
+  if (!newPassword || newPassword.trim() === '') {
+    return res.status(400).json({ message: 'New password is required' });
+  }
+
+  const isAdmin = await User.findById(req.user._id);
+
+  if (!isAdmin || isAdmin.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied, you are not admin' });
+  }
+
+  const doctorUser = await Doctor.findById(doctorId);
+
+  if (!doctorUser) {
+    return res.status(404).json({ message: 'Doctor not found' });
+  }
+
+  const userDoctor = await User.findById(doctorUser.user_id)
+
+  if (!userDoctor) {
+    return res.status(404).json({ message: 'User associated with doctor not found' });
+  }
+
+  userDoctor.password = newPassword;
+
+  await userDoctor.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(200, "Doctor password changed successfully by admin", userDoctor)
+  );
+});
+
+
 
 
 
