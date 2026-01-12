@@ -14,11 +14,6 @@ const Dashboard = () => {
 
   const { totalDoctors, todayPendingCompletedAppointments, totalDoctorsAppointments, totalPatients, totalDepartments, } = useSelector((state) => state.hospitalManagement);
 
-
-  console.log('all total totalDoctorsAppointments====>', totalDoctorsAppointments)
-
-
-
   useEffect(() => {
     if (cookies.accessToken) {
       // Fetch dashboard data here
@@ -105,30 +100,36 @@ const Dashboard = () => {
             </thead>
 
             <tbody>
-
-              {
-                totalDoctorsAppointments?.length > 0 ? (
-                  totalDoctorsAppointments?.map((ele, ind) => (
-                    <tr key={ind} className="border-b">
-                      <td className="p-3">{ele.patientId.name}</td>
-                      <td className="p-3">{ele.doctorId.user_id.name}</td>
-                      <td className="p-3">{ele.date}</td>
-                      <td className={`p-3 font-bold
-                        ${ele.status === "pending" ? 'text-yellow-400' : ele.status == 'completed' ? 'text-green-500' : 'text-red-600 font-semibold'}`}>
+              {totalDoctorsAppointments?.length > 0 ? (
+                totalDoctorsAppointments.map((ele, ind) => (
+                  <tr key={ind} className="border-b">
+                    <td className="p-3">{ele.patientId.name}</td>
+                    <td className="p-3">{ele.doctorId.user_id.name}</td>
+                    <td className="p-3">{ele.date}</td>
+                    <td
+                      className={`p-3 font-bold
+          ${ele.status === "pending"
+                          ? "text-yellow-400"
+                          : ele.status === "completed"
+                            ? "text-green-500"
+                            : "text-red-600"}`}
+                    >
                       {ele.status}
                     </td>
-                    </tr>
-            ))
-            ) :
-            (
-            <div>Please login your Account</div>
-            )
-              }
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="p-4 text-center text-gray-500">
+                    No appointments found
+                  </td>
+                </tr>
+              )}
+            </tbody>
 
-          </tbody>
-        </table>
+          </table>
+        </div>
       </div>
-    </div>
     </div >
   );
 };
