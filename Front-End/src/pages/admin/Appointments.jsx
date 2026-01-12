@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { cancelledAppointmentByAdmin, getAllDoctorAppointments } from '../../reduxtollkit/hospitalManagementSlice';
 
 const Appointments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("today"); // today or all
 
   const dispatch = useDispatch()
+
 
   // Demo Data
   const [appointments, setAppointments] = useState([
@@ -15,13 +17,17 @@ const Appointments = () => {
     { id: "APP-201", patientName: "Amit", doctorName: "Dr. Neha Singh", date: "2026-01-02", time: "09:00 AM", status: "Confirmed" },
   ]);
 
-  const {totalDoctorsAppointments} = useSelector((state)=> state.hospitalManagement)
+  const { totalDoctorsAppointments } = useSelector((state) => state.hospitalManagement)
 
   console.log(totalDoctorsAppointments)
   // Delete/Cancel Function
-  const cancelAppointment = (id) => {
+  const cancelAppointment = async (id) => {
     if (window.confirm("Are you sure you want to cancel this appointment?")) {
-      setAppointments(appointments.filter(app => app.id !== id));
+      let res = await dispatch(cancelledAppointmentByAdmin(id)).unwrap()
+      console.log('i am appointment===> ' , res)
+      if(res.success){
+        dispatch(getAllDoctorAppointments())
+      }
     }
   };
 
@@ -33,6 +39,9 @@ const Appointments = () => {
     if (filter === "today") return matchesSearch && isToday;
     return matchesSearch;
   });
+
+
+
 
   return (
     <div className="h-screen bg-gray-50 p-6 w-full sm:w-[75vw] overflow-y-auto">
@@ -84,6 +93,7 @@ const Appointments = () => {
                       {app._id}
                     </span>
                     <h3 className="text-lg font-bold text-gray-800 mt-2">{app.patientId.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mt-2">{app.state}</h3>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-blue-600">{app.timeSlot}</p>
@@ -102,15 +112,24 @@ const Appointments = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button className="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-100 transition">
-                    Reschedule
-                  </button>
-                  <button
-                    onClick={() => cancelAppointment(app.id)}
+
+                  {
+                    app.status =='pending' ? (
+                        <button
+                    onClick={() => cancelAppointment(app._id)}
                     className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition"
                   >
                     Cancel
                   </button>
+                    ):
+                    <>
+                    <button
+                    disabled={true}
+                    className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg text-sm font-semibold hover:bg-red-100 transition"
+                  >
+                    {app.status}
+                  </button></>
+                  }
                 </div>
               </div>
             ))}
