@@ -258,7 +258,38 @@ export const deleteDepartment = asyncHandler(async (req, res) => {
   );
 });
 
+export const editDepartmentDetails = asyncHandler(async (req, res) => {
+  const { id, nameOfDepartment, description } = req.body
 
+  const user = await User.findById(req.user._id)
+
+  if (!user) {
+    throw ApiError(404, 'user does not exists')
+  }
+
+  const department = await Department.findById(id)
+
+  if (!department) {
+    throw new ApiError(404, 'department does not exists')
+  }
+
+  department.nameOfDepartment = nameOfDepartment || department.nameOfDepartment
+  department.description = description || department.description
+
+  await department.save({ validateBeforeSave: false })
+
+  const departments = await Department.find()
+
+  if (!departments) {
+    throw new ApiError(402, "something went wrong")
+  }
+
+  res.status(201).json({
+    success: true,
+    departments: departments,
+    message: 'All departments have been successfully fetched'
+  });
+})
 
 export const completeAppointmentByAdmin = asyncHandler(async (req, res) => {
   const { appointmentId } = req.params;
