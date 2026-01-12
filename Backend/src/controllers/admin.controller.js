@@ -3,6 +3,7 @@ import { Department } from "../models/departmentSchema.js";
 import { Doctor } from "../models/doctorSchema.js";
 import { Patient } from "../models/patientSchema.js";
 import { User } from "../models/userSchema.js";
+import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -27,6 +28,7 @@ export const createDepartment = async (req, res) => {
     });
 
     res.status(201).json({
+      success: true,
       message: "Department created successfully",
       department,
     });
@@ -83,12 +85,12 @@ export const addDoctor = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "Doctor added successfully",
       loginCredentials: {
         email,
         password: tempPassword, // admin doctor ko dega
       },
       doctor,
+      message: "Doctor added successfully",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -104,17 +106,13 @@ export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.find()
       .populate("department", "nameOfDepartment") // doctor me user_id hai doctor ki to kya ham usme se user ka name and email lana chahte hai to ham populate kr skte hai
-      .populate("doctorId", "name email"); // ye user se name and email le aayega
+      .populate("user_id", "name email"); // ye user se name and email le aayega
 
-    res.status(200).json({
-      total: doctors.length,
-      doctors,
-    });
+    res.status(200).json(new ApiResponse(200, { doctors: doctors }, 'All doctor has been fetched'));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 
 
@@ -142,19 +140,22 @@ export const getAllDoctorAppointments = asyncHandler(async (req, res) => {
   }
   // 2️⃣ Get appointments for this doctor
   const appointments = await Appointment.find()
+    .populate(
+      { path: 'patientId', select: 'name' }
+    )
     .populate({
-      path: "patientId",
-      populate: { path: "user_id", select: "name email" },
+      path: "doctorId", // doctorId me user_id jo User schema ka hai wo populate krna hai or name leke aana hai User schema se
+      populate: { path: "user_id", select: "name" },
     })
-    .sort({ createdAt: 1 }); // it will sort by ascending order of creation time means older appointment will come first
+
 
   if (!appointments || appointments.length === 0) {
     return res.status(404).json({ message: "No appointments found" });
   }
 
   return res.status(200).json({
+    data: appointments,
     message: "Doctor appointments fetched successfully",
-    appointments,
   });
 });
 
@@ -184,7 +185,7 @@ export const getAllCompleteAppointment = asyncHandler(async (req, res) => {
 
 
 
-export const getTodayPendingAppointments = asyncHandler(async (req, res) => {
+export const getTodayAllAppointments = asyncHandler(async (req, res) => {
 
   // 📅 Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
@@ -192,7 +193,6 @@ export const getTodayPendingAppointments = asyncHandler(async (req, res) => {
 
   const pendingAppointments = await Appointment.find({
     date: today,
-    status: "pending",
   })
     .populate("patientId", "name email")
     .populate("doctorId", "name email");
@@ -200,14 +200,14 @@ export const getTodayPendingAppointments = asyncHandler(async (req, res) => {
   if (pendingAppointments.length === 0) {
     return res
       .status(404)
-      .json(new ApiResponse(404, "No pending appointments for today"));
+      .json(new ApiResponse(404, "No appointments for today"));
   }
 
   return res.status(200).json(
     new ApiResponse(
       200,
-      "Today's pending appointments fetched successfully",
-      pendingAppointments
+      pendingAppointments,
+      "Today's appointments fetched successfully",
     )
   );
 });
@@ -228,9 +228,36 @@ export const getAllDepartments = asyncHandler(async (req, res) => {
     );
   }
   return res.status(200).json(
-    new ApiResponse(200, "Departments fetched successfully", departments)
+    new ApiResponse(200, departments, "Departments fetched successfully")
   );
 });
+
+
+
+export const deleteDepartment = asyncHandler(async (req, res) => {
+  const { departmentId } = req.params;
+  const isAvailableAdmin = await User.find({
+    _id: req.user._id,
+    role: 'admin'
+  })
+
+  if (!isAvailableAdmin) {
+    return res.status(403).json({ message: 'Access denied , you are not admin' })
+  }
+
+  const department = await Department.findByIdAndDelete(departmentId);
+
+  if (!department) {
+    return res.status(404).json(
+      new ApiResponse(404, "Department not found")
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "Department deleted successfully", department)
+  );
+});
+
 
 
 export const completeAppointmentByAdmin = asyncHandler(async (req, res) => {
@@ -282,12 +309,19 @@ export const cancelAppointmentByAdmin = asyncHandler(async (req, res) => {
   appointment.status = 'cancelled by admin',
 
     await appointment.save({ validateBeforeSave: false });
+ 
+    const allAppointments = await Appointment.find()
 
   return res.status(200).json(
-    new ApiResponse(200, "Appointment cancelled successfully by admin", appointment)
+    {
+      success:true,
+      allAppointments,
+      message:"Appointment cancelled successfully by admin"
+    }
   );
-
 })
+
+
 
 
 
