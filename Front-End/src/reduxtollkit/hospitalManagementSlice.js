@@ -141,9 +141,9 @@ export const editDepartment = createAsyncThunk(
 )
 
 export const deletePatientFromUser = createAsyncThunk(
-    'hospitalMagement/deletePatientFromUser',
+    'hospitalMangement/deletePatientFromUser',
     async (id, { rejectWithValue }) => {
-        console.log('first' , id)
+        console.log('first', id)
         try {
             const response = await axios.post('http://localhost:8000/hospital/admin/deletePatientWithUser',
                 id,
@@ -154,6 +154,23 @@ export const deletePatientFromUser = createAsyncThunk(
 
         } catch (error) {
             return rejectWithValue(error.response?.message || 'something went wronge')
+        }
+    }
+)
+
+export const cancelledAppointmentByAdmin = createAsyncThunk(
+    'hospitalMangement/cancelledAppointmentByAdmin',
+    async (appointmentId, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `http://localhost:8000/hospital/admin/cancelAppointmentByAdmin/${appointmentId}`,
+                {},
+                { withCredentials: true }
+            )
+            console.log(response.data ,"================>")
+           return response.data
+        } catch (error) {
+            return rejectWithValue(error.response?.message || 'something went wrong')
         }
     }
 )
@@ -341,6 +358,17 @@ const hospitalManagementSlice = createSlice({
             })
 
 
+            // cancelled appointment by user
+            .addCase(cancelledAppointmentByAdmin.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(cancelledAppointmentByAdmin.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(cancelledAppointmentByAdmin.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message;
+            })
 
     }
 })
