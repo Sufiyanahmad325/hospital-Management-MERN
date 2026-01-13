@@ -15,7 +15,19 @@ export const getAllTodayAppointments = createAsyncThunk(
     }
 )
 
-
+export const getTodayAllPendingAppointment = createAsyncThunk(
+    'doctorControl/getTodayAllPendingAppointment',
+    async (_, { rejectWithValue }) => {
+        try {
+            let response = await axios.get('http://localhost:8000/hospital/doctor/getTodayPendingappointments',
+                { withCredentials: true }
+            )
+            return response.data.data
+        } catch (error) {
+            rejectWithValue(error.data?.data?.message || 'something went wronge')
+        }
+    }
+)
 
 
 const initialState = {
@@ -51,7 +63,16 @@ const doctorControlSlice = createSlice({
 
             //get all today pending appointment
 
-
+            .addCase(getTodayAllPendingAppointment.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(getTodayAllPendingAppointment.fulfilled, (state, action) => {
+                state.doctorTodayPendingAppointments = action.payload
+            })
+            .addCase(getTodayAllPendingAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message
+            })
 
 
     }
