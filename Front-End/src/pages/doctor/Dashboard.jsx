@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const DoctorDashboard = () => {
+
+  const [completedAppointment, setCompletedAppointment] = useState('00')
+
+  const { doctorTodayAllAppointments, doctorTodayPendingAppointments } = useSelector((state) => state.doctorControl)
+
+  useEffect(() => {
+    console.log('hahahahhaha', doctorTodayAllAppointments)
+    let a = doctorTodayAllAppointments.filter(ele => ele.status === 'completed')
+    setCompletedAppointment(a)
+  }, [doctorTodayAllAppointments])
+
   return (
     <div className="min-h-screen bg-green-200 p-6 space-y-6 sm:w-[75vw]">
 
@@ -38,21 +50,21 @@ const DoctorDashboard = () => {
 
         <div className="bg-white p-4 rounded-lg shadow">
           <p className="text-sm text-gray-500">Today's Appointments</p>
-          <h2 className="text-2xl font-bold text-green-600">12</h2>
+          <h2 className="text-2xl font-bold text-green-600">{doctorTodayAllAppointments.length || '00'}</h2>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-500">Pending Appointments</p>
-          <h2 className="text-2xl font-bold text-yellow-500">5</h2>
+          <p className="text-sm text-gray-500">Today Pending Appointments</p>
+          <h2 className="text-2xl font-bold text-yellow-500">{doctorTodayPendingAppointments.length || '00'}</h2>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-500">Completed Appointments</p>
-          <h2 className="text-2xl font-bold text-blue-600">20</h2>
+          <p className="text-sm text-gray-500">Today Completed Appointments</p>
+          <h2 className="text-2xl font-bold text-blue-600">{completedAppointment.length}</h2>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
-          <p className="text-sm text-gray-500">Total Patients</p>
+          <p className="text-sm text-gray-500">My All Day Appointment</p>
           <h2 className="text-2xl font-bold text-purple-600">50</h2>
         </div>
 
@@ -70,35 +82,29 @@ const DoctorDashboard = () => {
             <thead className="bg-green-100">
               <tr>
                 <th className="border p-2">Patient Name</th>
+                <th className="border p-2">Address</th>
                 <th className="border p-2">Time</th>
                 <th className="border p-2">Status</th>
+                <th className="border p-2">Mark Complete</th>
               </tr>
             </thead>
 
             <tbody>
-              <tr className="hover:bg-gray-50">
-                <td className="border p-2">Noman</td>
-                <td className="border p-2">10:30 AM</td>
-                <td className="border p-2 text-yellow-600 font-medium">
-                  Pending
-                </td>
-              </tr>
-
-              <tr className="hover:bg-gray-50">
-                <td className="border p-2">Sajida</td>
-                <td className="border p-2">11:00 AM</td>
-                <td className="border p-2 text-green-600 font-medium">
-                  canceled
-                </td>
-              </tr>
-
-              <tr className="hover:bg-gray-50">
-                <td className="border p-2">Sufiyan</td>
-                <td className="border p-2">12:15 PM</td>
-                <td className="border p-2 text-blue-600 font-medium">
-                  Completed
-                </td>
-              </tr>
+              {
+                doctorTodayAllAppointments?.length > 0 && doctorTodayAllAppointments.map((ele, ind) => (
+                  <tr className="hover:bg-gray-50">
+                    <td className="border p-2">{ele.patientId?.name}</td>
+                    <td className="border p-2">{ele.patientId?.address}</td>
+                    <td className="border p-2">{ele?.timeSlot}</td>
+                    <td className="border p-2 text-yellow-600 font-medium">
+                      {ele.status}
+                    </td>
+                    <td className="border p-2  font-medium flex justify-center">
+                      <button className="green px-2 bg-green-300 rounded-md">Mark Completed</button>
+                    </td>
+                  </tr>
+                ))
+              }
             </tbody>
 
           </table>
