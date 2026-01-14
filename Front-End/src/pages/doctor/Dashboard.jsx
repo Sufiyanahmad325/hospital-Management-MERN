@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { completeAppointment, getAllTodayAppointments, getTodayAllPendingAppointment } from "../../reduxtollkit/doctorControlSlice";
 
 const DoctorDashboard = () => {
 
   const [completedAppointment, setCompletedAppointment] = useState('00')
 
-  const { doctorTodayAllAppointments, doctorTodayPendingAppointments } = useSelector((state) => state.doctorControl)
+  const { doctorTodayAllAppointments, doctorTodayPendingAppointments ,doctorAllDayTotalAppointments } = useSelector((state) => state.doctorControl)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    console.log('hahahahhaha', doctorTodayAllAppointments)
     let a = doctorTodayAllAppointments.filter(ele => ele.status === 'completed')
     setCompletedAppointment(a)
   }, [doctorTodayAllAppointments])
+
+  const handleUpdate = async (id) => {
+    let res = await dispatch(completeAppointment(id)).unwrap()
+    if (res.success) {
+       dispatch(getAllTodayAppointments())
+       dispatch(getTodayAllPendingAppointment())
+    }
+  }
 
   return (
     <div className="min-h-screen bg-green-200 p-6 space-y-6 sm:w-[75vw]">
@@ -65,7 +74,7 @@ const DoctorDashboard = () => {
 
         <div className="bg-white p-4 rounded-lg shadow">
           <p className="text-sm text-gray-500">My All Day Appointment</p>
-          <h2 className="text-2xl font-bold text-purple-600">50</h2>
+          <h2 className="text-2xl font-bold text-purple-600">{doctorAllDayTotalAppointments.length || "00"}</h2>
         </div>
 
       </div>
@@ -92,7 +101,7 @@ const DoctorDashboard = () => {
             <tbody>
               {
                 doctorTodayAllAppointments?.length > 0 && doctorTodayAllAppointments.map((ele, ind) => (
-                  <tr className="hover:bg-gray-50">
+                  <tr key={ind} className="hover:bg-gray-50">
                     <td className="border p-2">{ele.patientId?.name}</td>
                     <td className="border p-2">{ele.patientId?.address}</td>
                     <td className="border p-2">{ele?.timeSlot}</td>
@@ -100,7 +109,13 @@ const DoctorDashboard = () => {
                       {ele.status}
                     </td>
                     <td className="border p-2  font-medium flex justify-center">
-                      <button className="green px-2 bg-green-300 rounded-md">Mark Completed</button>
+                      {
+                        ele.status == 'pending' ? (
+                          <button onClick={() => handleUpdate(ele._id)} className="green px-2 bg-green-300 rounded-md">Mark Completed</button>
+                        ) : (
+                          <button>completed</button>
+                        )
+                      }
                     </td>
                   </tr>
                 ))
