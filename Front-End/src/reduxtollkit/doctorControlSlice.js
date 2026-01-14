@@ -43,7 +43,21 @@ export const getAllDayAppointment = createAsyncThunk(
 
 
 
+export const completeAppointment = createAsyncThunk(
+    'doctorControl/completeAppointment',
+    async (id, { rejectWithValue }) => {
+        try {
+            let response = await axios.put("http://localhost:8000/hospital/doctor/completeAppointmentByDoctor",
+                {appointmentId:id},
+                { withCredentials: true }
+            )
 
+            return response.data
+        } catch (error) {
+            rejectWithValue(error.data?.data?.message || 'something went wrong')
+        }
+    }
+)
 
 
 const initialState = {
@@ -108,7 +122,16 @@ const doctorControlSlice = createSlice({
 
             // complete appointment by doctor
 
-           
+            .addCase(completeAppointment.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(completeAppointment.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(completeAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message
+            })
     }
 
 })
