@@ -29,11 +29,26 @@ export const getTodayAllPendingAppointment = createAsyncThunk(
     }
 )
 
+export const getAllDayAppointment = createAsyncThunk(
+    'doctorControl/getAllDayAppointment',
+    async (_, { rejectWithValue }) => {
+        try {
+            let res = await axios("http://localhost:8000/hospital/doctor/getAllDayAppointment", { withCredentials: true })
+            return res.data.data
+        } catch (error) {
+            rejectWithValue(error.data?.data?.message || 'something went wrong')
+        }
+    }
+)
+
+
+
+
+
 
 const initialState = {
     doctorTodayAllAppointments: [],
     doctorTodayPendingAppointments: [],
-    doctorTodayCompleteAppointment: [],
     doctorAllDayTotalAppointments: [],
     isLoading: false
 }
@@ -67,6 +82,7 @@ const doctorControlSlice = createSlice({
                 state.isLoading = true
             })
             .addCase(getTodayAllPendingAppointment.fulfilled, (state, action) => {
+                state.isLoading = false
                 state.doctorTodayPendingAppointments = action.payload
             })
             .addCase(getTodayAllPendingAppointment.rejected, (state, action) => {
@@ -75,6 +91,24 @@ const doctorControlSlice = createSlice({
             })
 
 
+            // get all day appointment
+
+            .addCase(getAllDayAppointment.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(getAllDayAppointment.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.doctorAllDayTotalAppointments = action.payload
+            })
+            .addCase(getAllDayAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message
+            })
+
+
+            // complete appointment by doctor
+
+           
     }
 
 })
