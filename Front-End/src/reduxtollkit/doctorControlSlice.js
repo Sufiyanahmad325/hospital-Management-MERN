@@ -34,6 +34,7 @@ export const getAllDayAppointment = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             let res = await axios("http://localhost:8000/hospital/doctor/getAllDayAppointment", { withCredentials: true })
+            console.log(res.data.data , "slice one")
             return res.data.data
         } catch (error) {
             rejectWithValue(error.data?.data?.message || 'something went wrong')
@@ -48,11 +49,28 @@ export const completeAppointment = createAsyncThunk(
     async (id, { rejectWithValue }) => {
         try {
             let response = await axios.put("http://localhost:8000/hospital/doctor/completeAppointmentByDoctor",
-                {appointmentId:id},
+                { appointmentId: id },
                 { withCredentials: true }
             )
 
             return response.data
+        } catch (error) {
+            rejectWithValue(error.data?.data?.message || 'something went wrong')
+        }
+    }
+)
+
+export const getDoctorDetails = createAsyncThunk(
+    'doctorControl/getDoctorDetails',
+    async (_, { rejectWithValue }) => {
+        try {
+            let response = await axios.get("http://localhost:8000/hospital/doctor/getDoctorDetails",
+                { withCredentials: true }
+            )
+
+            console.log('i am slice ===> ' , response.data.data)
+            return response.data.data
+
         } catch (error) {
             rejectWithValue(error.data?.data?.message || 'something went wrong')
         }
@@ -64,6 +82,7 @@ const initialState = {
     doctorTodayAllAppointments: [],
     doctorTodayPendingAppointments: [],
     doctorAllDayTotalAppointments: [],
+    doctorsDetails: {},
     isLoading: false
 }
 
@@ -129,6 +148,21 @@ const doctorControlSlice = createSlice({
                 state.isLoading = false
             })
             .addCase(completeAppointment.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.error.message
+            })
+
+
+            // get Doctors details
+
+            .addCase(getDoctorDetails.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(getDoctorDetails.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.doctorsDetails = action.payload
+            })
+            .addCase(getDoctorDetails.rejected, (state, action) => {
                 state.isLoading = false
                 state.error = action.error.message
             })
