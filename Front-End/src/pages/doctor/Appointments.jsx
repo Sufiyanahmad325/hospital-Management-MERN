@@ -1,55 +1,33 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { completeAppointment, getAllDayAppointment, getAllTodayAppointments, getTodayAllPendingAppointment } from "../../reduxtollkit/doctorControlSlice";
 
 const Appointments = () => {
-  
+
   const [today, setToday] = useState(new Date().toISOString().split("T")[0]);
+
+  const dispatch = useDispatch()
 
   console.log(today)
 
   const [filter, setFilter] = useState("today");
 
-  const [appointments, setAppointments] = useState([
-    {
-      id: "APP-101",
-      patientName: "Noman",
-      date: "2025-12-31",
-      time: "10:30 AM",
-      status: "pending",
-    },
-    {
-      id: "APP-103",
-      patientName: "Sufiyan",
-      date: "2026-01-01",
-      time: "12:15 PM",
-      status: "pending",
-    },
-    {
-      id: "APP-102",
-      patientName: "Sajida",
-      date: "2025-12-31",
-      time: "11:00 AM",
-      status: "completed",
-    },
-    {
-      id: "APP-201",
-      patientName: "Amit",
-      date: "2026-01-02",
-      time: "09:00 AM",
-      status: "pending",
-    },
-  ]);
+  const { doctorAllDayTotalAppointments } = useSelector((state) => state.doctorControl)
+
+
 
   // ✅ Complete appointment
-  const completeAppointment = (id) => {
-    setAppointments(
-      appointments.map((app) =>
-        app.id === id ? { ...app, status: "completed" } : app
-      )
-    );
+  const handleUpdate = async (id) => {
+    let res = await dispatch(completeAppointment(id)).unwrap()
+    if (res.success) {
+      dispatch(getTodayAllPendingAppointment())
+      dispatch(getAllTodayAppointments())
+      dispatch(getAllDayAppointment())
+    }
   };
 
   // ✅ Filter logic (easy)
-  const filteredAppointments = appointments.filter((app) => {
+  const filteredAppointments = doctorAllDayTotalAppointments.filter((app) => {
     if (filter === "today") {
       return app.date === today && app.status === "pending";
     }
@@ -79,10 +57,9 @@ const Appointments = () => {
             key={type}
             onClick={() => setFilter(type)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition
-              ${
-                filter === type
-                  ? "bg-green-500 text-white"
-                  : "bg-white border"
+              ${filter === type
+                ? "bg-green-500 text-white"
+                : "bg-white border"
               }`}
           >
             {type === "today" && "Today"}
@@ -103,13 +80,13 @@ const Appointments = () => {
         ) : (
           filteredAppointments.map((app) => (
             <div
-              key={app.id}
+              key={app._id}
               className="bg-white rounded-xl shadow p-5 space-y-3 hover:shadow-md transition"
             >
               {/* HEADER */}
               <div className="flex justify-between items-center">
                 <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
-                  {app.id}
+                  {app._id}
                 </span>
                 <span className="text-sm text-gray-500">
                   {app.time}
@@ -120,7 +97,7 @@ const Appointments = () => {
               <div>
                 <p className="text-sm text-gray-500">Patient</p>
                 <h3 className="text-lg font-bold text-gray-800">
-                  {app.patientName}
+                  {app.patientId?.name}
                 </h3>
               </div>
 
@@ -141,9 +118,9 @@ const Appointments = () => {
                   </span>
                 )}
 
-                {app.status === "pending" && (
+                {app.status === "pending" && filter === "today" && (
                   <button
-                    onClick={() => completeAppointment(app.id)}
+                    onClick={() => handleUpdate(app._id)}
                     className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded text-sm"
                   >
                     Mark Completed
