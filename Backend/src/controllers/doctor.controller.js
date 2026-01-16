@@ -1,32 +1,58 @@
-import {Doctor} from "../models/doctorSchema.js";
-import {Appointment} from "../models/appointmentSchema.js";
-import  ApiResponse from "../utils/ApiResponse.js";
+import { Doctor } from "../models/doctorSchema.js";
+import { Appointment } from "../models/appointmentSchema.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import ApiError from "../utils/apiError.js";
 
 
 
+export const getTodayDoctorAppointment = asyncHandler(async (req, res) => {
+  const { doctorId } = req.user._id
 
-export const getDoctorAppointments = async (req, res) => {
+  let todayDate = new Date().toISOString().split("T")[0];
+
+  const user = await Doctor.find({ doctorId: doctorId })
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'only doctor can Access'
+    })
+  }
+
+  const TodayAppointments = await Appointment.find({
+    doctorid: doctorId,
+    date: todayDate,
+    // status: 'pending' || 'completed' 
+    status: { $in: ['pending', 'completed'] } // i doing this becouse i have to filter completed and pending appointment in frontend that how much appointment has been completed and pending
+  }).sort({ createdAt: 1 })
+    .populate({ path: 'patientId', select: "name address" })
+
+
+  return res.status(201).json(
+    new ApiResponse(201, TodayAppointments, 'Today Appointments fetch successfully')
+  )
+})
+
+
+export const getTodayPendingAppointments = async (req, res) => {
   try {
     const userId = req.user.id; // from auth middleware
-    const {date} = req.body; // expected format: 'YYYY-MM-DD'
-
-    console.log(date)
+    let todayDate = new Date().toISOString().split("T")[0];
 
     // 1️⃣ Find doctor profile
-    const doctor = await Doctor.findOne({ user_id:userId });
+    const doctor = await Doctor.findOne({ user_id: userId });
     if (!doctor || doctor <= 0) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Doctor profile not found"));
+      throw new ApiError(401, 'doctor not found ')
 
-        console.log("=============== >" ,doctor)
     }
     // 2️⃣ Get appointments for this doctor
     const appointments = await Appointment.find({
       doctorId: doctor._id,
-      date:date,
+      date: todayDate,
+      status: 'pending'
     })
-    // is this nexted populate correct? yes it is 
+      // is this nexted populate correct? yes it is 
       .populate({
         path: "patientId",
         populate: { path: "user_id", select: "name email" },
@@ -51,70 +77,63 @@ export const getDoctorAppointments = async (req, res) => {
 
 
 
+export const getAllDayAppointment = asyncHandler(async (req, res) => {
+  const Id = req.user._id;
 
+  const doctor = await Doctor.findOne({
+    user_id: Id
+  })
 
-export const updateAppointmentStatus = async (req, res) => {
-  try {
-    const appointmentId = req.params.id;
-    const { status } = req.body; // completed | cancelled
-    const userId = req.user.id;
+  // 👉 aaj ki date string
+  const today = new Date().toISOString().split("T")[0];
 
-    console.log( 'appointmentId :', appointmentId , 'status: ' ,status , 'userId : ' , userId )
+  const appointments = await Appointment.find({
+    doctorId: doctor._id,
+    date: { $gte: today }, // ✅ today + future
+    status: { $in: ['pending', 'completed'] }
+  }).sort({ createdAt: 1 })
+  .populate({
+    path:"patientId" , select:"name"
+  })
 
-    if (!["completed", "cancelled"].includes(status)) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, null, "Invalid status value"));
-    }
-
-    // 1️⃣ Find doctor
-    const doctor = await Doctor.findOne({ user_id: userId });
-    if (!doctor) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Doctor profile not found"));
-    }
-
-    // 2️⃣ Find appointment
-    const appointment = await Appointment.findOne({
-      _id: appointmentId,
-      doctorId: doctor._id,
-    });
-
-    if (!appointment) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Appointment not found"));
-    }
-
-    if (appointment.status !== "pending") {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(
-            400,
-            null,
-            "Only pending appointments can be updated"
-          )
-        );
-    }
-
-    // 3️⃣ Update status
-    appointment.status = status;
-await appointment.save();
-
+  if (!appointments.length) {
     return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          appointment,
-          `Appointment ${status} successfully`
-        )
-      );
-  } catch (error) {
-    return res
-      .status(500)
-      .json(new ApiResponse(500, null, error.message));
+      .status(404)
+      .json(new ApiResponse(404, null, "No upcoming appointments found"));
   }
-};
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
+});
+
+
+
+
+export const completeAppointmentByDoctor = asyncHandler(async (req, res) => {
+  const { appointmentId } = req.body
+
+  const date = new Date().toISOString().split('T')[0]
+
+  const appointment = await Appointment.findOne({ _id: appointmentId, date: date, status: 'pending' })
+
+  if (!appointment) {
+    throw new ApiError(401, "Appointment does not exist")
+  }
+
+  appointment.status = "completed"
+
+  await appointment.save({ validateBeforeSave: false })
+
+
+  return res.status(200).json(
+    new ApiResponse(200, null, "Appointment has been completed")
+  );
+
+
+})
+
+
+
+
+
