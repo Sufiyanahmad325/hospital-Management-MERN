@@ -136,4 +136,19 @@ export const completeAppointmentByDoctor = asyncHandler(async (req, res) => {
 
 
 
+export const getDoctorDetails = asyncHandler(async(req, res)=>{
+
+  const userDetails = await Doctor.find({
+    user_id:req.user._id
+  }).populate({path:'user_id' , select:'name email'})
+
+  if(!userDetails){
+    throw new ApiError(404 , 'user does not exists')
+  }
+
+  return res.status(201).json(
+    new ApiResponse(201 , userDetails , 'user fatch successfully')
+  )
+
+})
 
