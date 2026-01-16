@@ -1,7 +1,10 @@
 import express from "express";
 import {
-  getDoctorAppointments,
-  updateAppointmentStatus,
+  completeAppointmentByDoctor,
+  getAllDayAppointment,
+  getDoctorDetails,
+  getTodayDoctorAppointment,
+  getTodayPendingAppointments,
 } from "../controllers/doctor.controller.js";
 
 import { verifyJWT } from "../middlewares/verifyJWT.middleware.js";
@@ -11,7 +14,10 @@ const router = express.Router();
 
 router.use(verifyJWT, isDoctor);
 
-router.get("/get-appointments", getDoctorAppointments);
-router.put("/updateAppointmentStatus/:id", updateAppointmentStatus);
+router.get("/getTodayappointments", getTodayDoctorAppointment);
+router.get("/getTodayPendingappointments", getTodayPendingAppointments);
+router.get("/getAllDayAppointment", getAllDayAppointment);
+router.put("/completeAppointmentByDoctor", completeAppointmentByDoctor);
+router.get("/getDoctorDetails", getDoctorDetails);
 
 export default router;
