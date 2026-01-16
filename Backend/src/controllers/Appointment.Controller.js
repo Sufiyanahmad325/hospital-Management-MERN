@@ -1,7 +1,9 @@
 import { Appointment } from "../models/appointmentSchema.js"
 import { Doctor } from "../models/doctorSchema.js";
 import { Patient } from "../models/patientSchema.js";
+import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { isDateWithin20Days } from "../utils/dateAvailableHelper.js";
 import { getDayFromDate } from "../utils/getDayFromDate.js";
 import { getNextFreeSlot } from "../utils/getFirstAvailableTimeSlot.js";
@@ -120,8 +122,26 @@ export const bookAppointment = async (req, res) => {
 };
 
 
+export const getUpComingAppointment = asyncHandler(async (req, res) => {
 
+  const todayDate = new Date().toISOString().split('T')[0]
 
+  console.log('hahahaha  =>  ', todayDate)
+
+  const upComingAppointments = await Appointment.find({
+    patientId: req.user._id,
+    date: { $gte: todayDate },
+  })
+
+  if (!upComingAppointments || upComingAppointments.length == 0) {
+    throw new ApiError(404, 'Up Coming Appointment does not Available')
+  }
+
+  return res.status(201).json(
+    new ApiResponse(201, upComingAppointments, 'up coming appointment has been fetch successfully')
+  )
+
+})
 
 
 
@@ -146,18 +166,18 @@ export const getMyAppointments = async (req, res) => {
 
     //  Appointments find (Patient PROFILE ID se)
     const appointments = await Appointment.find({
-      patientId: patient._id,   
+      patientId: patient._id,
       status: "pending",
 
     })
       .populate("doctorId", "experience specialization ")  // doctor details ke liye
       .sort({ date: -1 }); // latest pehle
 
-      if (appointments.length === 0) {
-        return res
-          .status(200)
-          .json(new ApiResponse(200, [], "No upcoming appointments found"));
-      }
+    if (appointments.length === 0) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, [], "No upcoming appointments found"));
+    }
 
     return res
       .status(200)
@@ -178,7 +198,7 @@ export const getMyAppointments = async (req, res) => {
 export const cancelAppointment = async (req, res) => {
   try {
     const appointmentId = req.params.appointmentId;
-    console.log('appointment ===========>' , appointmentId)
+    console.log('appointment ===========>', appointmentId)
     const userId = req.user._id;
 
     const patient = await Patient.findOne({ user_id: userId });
@@ -212,7 +232,7 @@ export const cancelAppointment = async (req, res) => {
     }
 
     appointment.status = "cancelled";
-    await appointment.save({validateBeforeSave: false});
+    await appointment.save({ validateBeforeSave: false });
 
     return res
       .status(200)
