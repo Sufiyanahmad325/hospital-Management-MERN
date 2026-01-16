@@ -144,7 +144,38 @@ export const getUpComingAppointment = asyncHandler(async (req, res) => {
 })
 
 
+export const getCompleteAppointment = asyncHandler(async (req, res) => {
 
+  const patient = await Patient.findOne({
+    user_id: req.user._id
+  })
+
+  if (!patient) {
+    return res.status(401).json({
+      success: false,
+      message: 'patient does not exists'
+    })
+  }
+
+  const completedAppointment = await Appointment.find({
+    patientId: patient._id,
+    status: "completed",
+  });
+
+  if (completedAppointment.length == 0) {
+    return res.status(404).json(
+      {
+        success: false,
+        data: [],
+        message: "there is not any completed Appointment"
+      }
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, completedAppointment, "Completed appointments fetched")
+  );
+});
 
 
 
