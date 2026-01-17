@@ -126,12 +126,21 @@ export const getUpComingAppointment = asyncHandler(async (req, res) => {
 
   const todayDate = new Date().toISOString().split('T')[0]
 
+  const patient = await Patient.findOne({ user_id: req.user._id })
+
   console.log('hahahaha  =>  ', todayDate)
 
   const upComingAppointments = await Appointment.find({
-    patientId: req.user._id,
+    patientId: patient?._id,
+    status: 'pending',
     date: { $gte: todayDate },
-  })
+  }).sort({ date: 1, timeSlot: 1 })
+    // .populate({ path: 'doctorId', select: 'specialization' })
+    .populate({
+      path: 'doctorId',
+      populate: ({ path: 'user_id', select: 'name email' })
+    })
+    .populate({ path: 'patientId', select: 'name' })
 
   if (!upComingAppointments || upComingAppointments.length == 0) {
     throw new ApiError(404, 'Up Coming Appointment does not Available')
