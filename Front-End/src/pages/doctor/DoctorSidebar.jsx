@@ -5,10 +5,22 @@ import { FaCalendarCheck } from "react-icons/fa";
 import { IoPerson } from "react-icons/io5";
 import { BiLogOut } from "react-icons/bi";
 import { useState } from "react";
+import { useCookies } from 'react-cookie'
 
 const DoctorSidebar = () => {
 
   const [openHamburger, setOpenHamburger] = useState(false);
+
+  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+
+  const logoutDoctor = () => {
+    removeCookie("accessToken", {
+      path: "/",
+      sameSite: "lax",
+    });
+    localStorage.removeItem("role");
+    console.log(cookies.accessToken)
+  }
 
   const linkStyle = ({ isActive }) =>
     isActive
@@ -20,17 +32,20 @@ const DoctorSidebar = () => {
 
       {/* hambargar menu */}
 
-      <div className="fixed right-5 mb-4 sm:hidden">
-        <GiHamburgerMenu size={30} color="green" onClick={() => setOpenHamburger(prev => !prev)} />
-      </div>
 
       {/* TITLE */}
-      <h2 className="text-xl font-bold text-green-700 mb-3">
-        Doctor Panel
-      </h2>
+      <div className="flex justify-between">
+        <h2 className="text-xl font-bold text-green-700 mb-3">
+          Doctor Panel
+        </h2>
+
+        <div className=" right-5 mb-4 sm:hidden">
+          <GiHamburgerMenu size={30} color="green" onClick={() => setOpenHamburger(prev => !prev)} />
+        </div>
+      </div>
 
       {/* MENU */}
-      <nav  className={`
+      <nav className={`
           space-y-2 text-gray-700
           overflow-hidden
           transition-all duration-500 ease-in-out
@@ -38,7 +53,7 @@ const DoctorSidebar = () => {
           sm:max-h-full
         `}>
 
-          
+
 
         <NavLink to="/doctor/dashboard" className={linkStyle}>
           <MdDashboard size={22} />
@@ -55,10 +70,10 @@ const DoctorSidebar = () => {
           My Profile
         </NavLink>
 
-        <NavLink to="/logout" className={linkStyle}>
+        <button onClick={logoutDoctor} className={`flex gap-3 items-center p-2`}>
           <BiLogOut size={20} />
           Logout
-        </NavLink>
+        </button>
 
       </nav>
     </div>
