@@ -169,7 +169,12 @@ export const getCompleteAppointment = asyncHandler(async (req, res) => {
   const completedAppointment = await Appointment.find({
     patientId: patient._id,
     status: "completed",
-  });
+  }).populate({
+      path: 'doctorId',
+      populate: ({ path: 'user_id', select: 'name email' })
+    })
+    .populate({ path: 'patientId', select: 'name' })
+
 
   if (completedAppointment.length == 0) {
     return res.status(404).json(
@@ -233,6 +238,34 @@ export const getMyAppointments = async (req, res) => {
 
 
 
+export const totalCancelledAppointment = asyncHandler(async (req, res) => {
+
+  const patient = await Patient.findOne({ user_id: req.user._id })
+
+  if (!patient) {
+    return res.status(404).json({
+      success: false,
+      message: 'user does not found'
+    })
+  }
+
+  const allCancelledAppointment = await Appointment.find({ 
+    patientId: patient._id,
+    status:'cancelled'
+   })
+    .populate({
+      path: 'doctorId',
+      populate: ({ path: 'user_id', select: 'name email' })
+    })
+    .populate({ path: 'patientId', select: 'name' })
+
+
+  return res.status(201).json(
+    new ApiResponse(201, allCancelledAppointment, 'fetch successfully completed')
+  )
+
+})
+
 
 // get cancel appointment
 export const cancelAppointment = async (req, res) => {
@@ -285,3 +318,9 @@ export const cancelAppointment = async (req, res) => {
       .json(new ApiResponse(500, null, error.message));
   }
 };
+
+
+
+export const getAllDoctor =asyncHandler(async(req,res)=>{
+  
+})
