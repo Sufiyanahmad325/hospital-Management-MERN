@@ -58,6 +58,27 @@ export const getCompletedAppointment = createAsyncThunk(
 )
 
 
+// get cancell appointment
+
+export const getAllCancelledAppointment = createAsyncThunk(
+    'patientControl/getAllCancelledAppointment',
+    async (_, { rejectWithValue }) => {
+        try {
+            let res = await axios.get('http://localhost:8000/hospital/appointments/getAllCancelledAppointment',
+                { withCredentials: true }
+            )
+            return res.data.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+
+// cancelled pending Appointment
+
 
 
 
@@ -69,6 +90,7 @@ const initialState = {
     completedAppointment: [],
     userDetails: null,
     cancelledAppointment: [],
+    doctors:[]
 
 }
 
@@ -124,7 +146,23 @@ const patientControlSlice = createSlice({
                 state.error = action.error.message;
             })
 
-            
+            // get total cancelled appointment
+
+            .addCase(getAllCancelledAppointment.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getAllCancelledAppointment.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.cancelledAppointment = action.payload;
+            }
+            )
+            .addCase(getAllCancelledAppointment.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
+
 
     }
 })
