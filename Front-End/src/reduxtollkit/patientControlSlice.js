@@ -13,10 +13,34 @@ export const getMyProfile = createAsyncThunk(
             return res.data.data
 
         } catch (error) {
-            return rejectWithValue(res.data.data.error.message || 'something went wrong')
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
         }
     }
 )
+
+// get upcoming appointment 
+
+export const getUpComingAppointment = createAsyncThunk(
+    'patientControl/getUpComingAppointment',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axios.get('http://localhost:8000/hospital/appointments/getUpComingAppointment',
+                { withCredentials: true }
+            )
+            console.log('i m redux=>>  ', res)
+            return res.data.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+
+
 
 
 
@@ -53,6 +77,22 @@ const patientControlSlice = createSlice({
             })
 
 
+            //get upcoming appointment 
+            .addCase(getUpComingAppointment.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getUpComingAppointment.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.upComingAppointment = action.payload;
+            }
+            )
+            .addCase(getUpComingAppointment.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
+           
     }
 })
 
