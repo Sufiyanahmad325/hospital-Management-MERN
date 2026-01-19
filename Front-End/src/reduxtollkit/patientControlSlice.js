@@ -40,6 +40,24 @@ export const getUpComingAppointment = createAsyncThunk(
 )
 
 
+// get Completed Appointment
+export const getCompletedAppointment = createAsyncThunk(
+    "patientControl/getCompletedAppointment",
+    async (_, { rejectWithValue }) => {
+        try {
+            let res = await axios.get('http://localhost:8000/hospital/appointments/getCompleteAppointment',
+                { withCredentials: true }
+            )
+            return res.data.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+
 
 
 
@@ -92,7 +110,22 @@ const patientControlSlice = createSlice({
             })
 
 
-           
+            // get completed appointment 
+            .addCase(getCompletedAppointment.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getCompletedAppointment.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.completedAppointment = action.payload;
+            }
+            )
+            .addCase(getCompletedAppointment.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+            
+
     }
 })
 
