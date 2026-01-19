@@ -8,118 +8,112 @@ import { isDateWithin20Days } from "../utils/dateAvailableHelper.js";
 import { getDayFromDate } from "../utils/getDayFromDate.js";
 import { getNextFreeSlot } from "../utils/getFirstAvailableTimeSlot.js";
 
-export const bookAppointment = async (req, res) => {
-  try {
-    const { doctorId, date } = req.body;
-    const userid = req.user._id;
+export const bookAppointment = asyncHandler(async (req, res) => {
+  const { doctorId, date } = req.body;
+  const userid = req.user._id;
 
 
-    //  Patient profile find (User ID se)
-    const patient = await Patient.findOne({ user_id: userid });
-    if (!patient) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Patient profile not found"));
-    }
-
-    //  Doctor find (Doctor ID se)
-    const doctor = await Doctor.findOne({ _id: doctorId });
-    if (!doctor) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Doctor not found"));
-    }
-
-
-
-
-    // Day availability check (Doctor availableDays me wo day hai ki nahi)
-    const isAvailableDate = await isDateWithin20Days(date);
-    if (!isAvailableDate) {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(400, null, "Selected date is not available for booking")
-        );
-    }
-
-    // check in doctor available-days the day is available or not
-    const appointmentDayName = await getDayFromDate(date);
-
-    if (!doctor.availableDays.includes(appointmentDayName)) {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(400, null, `Doctor is not available on ${appointmentDayName}s`)
-        );
-    }
-
-    //  Time slot availability check (Doctor ke availableSlots me se ek free slot do)
-    const isAvailableTime = await getNextFreeSlot(doctor._id, date);
-
-    if (!isAvailableTime) {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(400, null, "No available time slots for the selected date")
-        );
-    }
-
-    // hare in finding total appointments for that date for that doctor
-    // if more than equal to 40 then no more appointments can be booked
-    const appointmentCount = await Appointment.countDocuments({
-      doctorId,
-      date,
-      status: "pending",
-    }); // it will check how many appointments are there for that doctor on that date
-
-    if (appointmentCount >= 40) {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(400, null, "Doctor has reached maximum appointments for this day")
-        );
-    }
-
-    // booking check
-    const existingAppointment = await Appointment.findOne({
-      patientId: patient._id,
-      doctorId,
-      date,
-      dayName: appointmentDayName,
-      status: "pending",
-    });
-
-    if (existingAppointment) {
-      return res
-        .status(400)
-        .json(
-          new ApiResponse(400, null, "You already have an appointment with this doctor on the selected date")
-        );
-    }
-
-
-
-    //  Create appointment
-    const appointment = await Appointment.create({
-      patientId: patient._id,
-      doctorId,
-      timeSlot: isAvailableTime,
-      dayName: appointmentDayName,
-      date,
-    });
-
+  //  Patient profile find (User ID se)
+  const patient = await Patient.findOne({ user_id: userid });
+  if (!patient) {
     return res
-      .status(201)
-      .json(
-        new ApiResponse(201, appointment, "Appointment booked successfully")
-      );
-  } catch (error) {
-    return res
-      .status(500)
-      .json(new ApiResponse(500, null, error.message));
+      .status(404)
+      .json(new ApiResponse(404, null, "Patient profile not found"));
   }
-};
+
+  //  Doctor find (Doctor ID se)
+  const doctor = await Doctor.findOne({ _id: doctorId });
+  if (!doctor) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'doctor not found' });
+  }
+
+
+
+
+  // Day availability check (Doctor availableDays me wo day hai ki nahi)
+  const isAvailableDate = await isDateWithin20Days(date);
+  if (!isAvailableDate) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Selected date is not available for booking" }
+      );
+  }
+
+  // check in doctor available-days the day is available or not
+  const appointmentDayName = await getDayFromDate(date);
+
+  if (!doctor.availableDays.includes(appointmentDayName)) {
+    return res
+      .status(404)
+      .json({
+        success: false,
+        message: `Doctor is not available on ${appointmentDayName}s`
+      });
+  }
+
+  //  Time slot availability check (Doctor ke availableSlots me se ek free slot do)
+  const isAvailableTime = await getNextFreeSlot(doctor._id, date);
+
+  if (!isAvailableTime) {
+    return res
+      .status(404)
+      .json({
+        success: false,
+        message: 'No available time slots for the selected date'
+      });
+  }
+
+  // hare in finding total appointments for that date for that doctor
+  // if more than equal to 40 then no more appointments can be booked
+  const appointmentCount = await Appointment.countDocuments({
+    doctorId,
+    date,
+    status: "pending",
+  }); // it will check how many appointments are there for that doctor on that date
+
+  if (appointmentCount >= 40) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Doctor has reached maximum appointments for this day' }
+      );
+  }
+
+  // booking check
+  const existingAppointment = await Appointment.findOne({
+    patientId: patient._id,
+    doctorId,
+    date,
+    dayName: appointmentDayName,
+    status: "pending",
+  });
+
+  if (existingAppointment) {
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "You already have an appointment with this doctor on the selected date"
+      });
+  }
+
+  //  Create appointment
+  const appointment = await Appointment.create({
+    patientId: patient._id,
+    doctorId,
+    timeSlot: isAvailableTime,
+    dayName: appointmentDayName,
+    date,
+  });
+
+  return res
+    .status(201)
+    .json(
+      new ApiResponse(201, appointment, "Appointment booked successfully")
+    );
+
+})
 
 
 export const getUpComingAppointment = asyncHandler(async (req, res) => {
@@ -170,9 +164,9 @@ export const getCompleteAppointment = asyncHandler(async (req, res) => {
     patientId: patient._id,
     status: "completed",
   }).populate({
-      path: 'doctorId',
-      populate: ({ path: 'user_id', select: 'name email' })
-    })
+    path: 'doctorId',
+    populate: ({ path: 'user_id', select: 'name email' })
+  })
     .populate({ path: 'patientId', select: 'name' })
 
 
@@ -195,9 +189,8 @@ export const getCompleteAppointment = asyncHandler(async (req, res) => {
 
 
 // get my appointments
-export const getMyAppointments = async (req, res) => {
-  try {
-    const userId = req.user._id;
+export const getMyAppointments = asyncHandler(async(req ,res)=>{
+  const userId = req.user._id;
 
     console.log(userId)
 
@@ -221,7 +214,10 @@ export const getMyAppointments = async (req, res) => {
     if (appointments.length === 0) {
       return res
         .status(200)
-        .json(new ApiResponse(200, [], "No upcoming appointments found"));
+        .json({
+          success:false , 
+          message:'No upcoming appointments found'
+        })
     }
 
     return res
@@ -229,12 +225,7 @@ export const getMyAppointments = async (req, res) => {
       .json(
         new ApiResponse(200, appointments, "Appointments fetched successfully")
       );
-  } catch (error) {
-    return res
-      .status(500)
-      .json(new ApiResponse(500, null, error.message));
-  }
-};
+})
 
 
 
@@ -249,10 +240,10 @@ export const totalCancelledAppointment = asyncHandler(async (req, res) => {
     })
   }
 
-  const allCancelledAppointment = await Appointment.find({ 
+  const allCancelledAppointment = await Appointment.find({
     patientId: patient._id,
-    status:'cancelled'
-   })
+    status: 'cancelled'
+  })
     .populate({
       path: 'doctorId',
       populate: ({ path: 'user_id', select: 'name email' })
@@ -268,9 +259,8 @@ export const totalCancelledAppointment = asyncHandler(async (req, res) => {
 
 
 // get cancel appointment
-export const cancelAppointment = async (req, res) => {
-  try {
-    const appointmentId = req.params.appointmentId;
+export const cancelAppointment = asyncHandler(async(req,res)=>{
+   const appointmentId = req.params.appointmentId;
     console.log('appointment ===========>', appointmentId)
     const userId = req.user._id;
 
@@ -278,7 +268,10 @@ export const cancelAppointment = async (req, res) => {
     if (!patient) {
       return res
         .status(404)
-        .json(new ApiResponse(404, null, "Patient not found"));
+        .json({
+          success:false,
+          message:'Patient not found'
+        })
     }
 
     const appointment = await Appointment.findOne({
@@ -289,18 +282,19 @@ export const cancelAppointment = async (req, res) => {
     if (!appointment) {
       return res
         .status(404)
-        .json(new ApiResponse(404, null, "Appointment not found"));
+        .json({
+          success:false,
+          message:'Appointment not found'
+        })
     }
 
     if (appointment.status !== "pending") {
       return res
-        .status(400)
-        .json(
-          new ApiResponse(
-            400,
-            null,
-            "Only pending appointments can be cancelled"
-          )
+        .status(404)
+        .json({
+          success:false,
+          message:'Only pending appointments can be cancelled'
+        }
         );
     }
 
@@ -312,15 +306,27 @@ export const cancelAppointment = async (req, res) => {
       .json(
         new ApiResponse(200, appointment, "Appointment cancelled successfully")
       );
-  } catch (error) {
-    return res
-      .status(500)
-      .json(new ApiResponse(500, null, error.message));
-  }
-};
-
-
-
-export const getAllDoctor =asyncHandler(async(req,res)=>{
   
+})
+
+
+
+export const getAllDoctor = asyncHandler(async (req, res) => {
+
+  const allDoctor = await Doctor.find()
+    .populate({ path: 'user_id', select: 'name email' })
+
+  if (!allDoctor || allDoctor.length == 0) {
+    res.status(404).json({
+      success:false,
+      message:'there is not any doctor'
+    })
+  }
+
+  res.status(201).json(
+    new ApiResponse(201 , allDoctor , 'doctor fetched successfully')
+  )
+
+  
+
 })
