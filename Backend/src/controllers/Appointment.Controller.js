@@ -18,7 +18,10 @@ export const bookAppointment = asyncHandler(async (req, res) => {
   if (!patient) {
     return res
       .status(404)
-      .json(new ApiResponse(404, null, "Patient profile not found"));
+      .json({
+        success:false,
+        message:'Patient profile not found'
+      })
   }
 
   //  Doctor find (Doctor ID se)
@@ -91,7 +94,7 @@ export const bookAppointment = asyncHandler(async (req, res) => {
 
   if (existingAppointment) {
     return res
-      .status(400)
+      .status(404)
       .json({
         success: false,
         message: "You already have an appointment with this doctor on the selected date"
