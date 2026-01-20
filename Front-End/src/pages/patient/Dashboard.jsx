@@ -1,7 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 const Dashboard = () => {
+
+  const { upComingAppointment, completedAppointment , userDetails ,cancelledAppointment } = useSelector((state) => state.patientControl)
+  const [doctorVisited, setdoctorVisited] = useState([])
+
+  // here i am filtering how many doctor have i visited ?
+  useEffect(() => {
+    let hello = []
+    completedAppointment?.filter((data) => {
+      if(!hello.includes(data.doctorId)){
+        hello.push(data.doctorId)
+      }
+    })
+    setdoctorVisited(hello)
+  }, [completedAppointment])
+
   return (
     <div className="h-screen bg-blue-100 p-6 sm:w-[75vw] space-y-6 sm:overflow-y-auto">
 
@@ -20,22 +36,22 @@ const Dashboard = () => {
 
         <div className="bg-white rounded-xl shadow p-5">
           <p className="text-sm text-gray-500">Upcoming Appointments</p>
-          <h2 className="text-2xl font-bold text-blue-600">2</h2>
+          <h2 className="text-2xl font-bold text-blue-600">{upComingAppointment?.length}</h2>
         </div>
 
         <div className="bg-white rounded-xl shadow p-5">
           <p className="text-sm text-gray-500">Completed Visits</p>
-          <h2 className="text-2xl font-bold text-green-600">8</h2>
+          <h2 className="text-2xl font-bold text-green-600">{completedAppointment?.length}</h2>
         </div>
 
         <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-sm text-gray-500">Pending Reports</p>
-          <h2 className="text-2xl font-bold text-yellow-500">1</h2>
+          <p className="text-sm text-gray-500">cancelled Appointment</p>
+          <h2 className="text-2xl font-bold text-yellow-500">{cancelledAppointment?.length}</h2>
         </div>
 
         <div className="bg-white rounded-xl shadow p-5">
           <p className="text-sm text-gray-500">Total Doctors Visited</p>
-          <h2 className="text-2xl font-bold text-purple-600">4</h2>
+          <h2 className="text-2xl font-bold text-purple-600">{doctorVisited?.length}</h2>
         </div>
 
       </div>
@@ -52,28 +68,28 @@ const Dashboard = () => {
           <div>
             <p className="text-sm text-gray-500">Doctor</p>
             <p className="font-semibold text-gray-800">
-              Dr. Rahul Sharma (Cardiology)
+              {upComingAppointment[0]?.doctorId?.user_id?.name} ({upComingAppointment[0]?.doctorId?.specialization})
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Date</p>
             <p className="font-semibold text-gray-800">
-              31 Dec 2025
+              {upComingAppointment[0]?.date}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Time</p>
             <p className="font-semibold text-gray-800">
-              10:30 AM
+              {upComingAppointment[0]?.timeSlot}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Status</p>
             <span className="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-              Pending
+              {upComingAppointment[0]?.status}
             </span>
           </div>
 
@@ -114,7 +130,7 @@ const Dashboard = () => {
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-gray-500">Last Visit</p>
             <p className="font-semibold text-gray-800">
-              15 Dec 2025
+              {completedAppointment[completedAppointment?.length-1]?.date}
             </p>
           </div>
 
@@ -128,7 +144,7 @@ const Dashboard = () => {
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-gray-500">Age</p>
             <p className="font-semibold text-gray-800">
-              26 Years
+              {userDetails?.age}
             </p>
           </div>
 
