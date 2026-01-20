@@ -121,7 +121,24 @@ export const getAllDoctor = createAsyncThunk(
 
 
 
+// const book appointment 
 
+export const bookAppointment = createAsyncThunk(
+    'patientControl/bookAppointment',
+    async (data, { rejectWithValue }) => {
+        try {
+            const res = await axios.post('http://localhost:8000/hospital/appointments/bookAppointment',
+                data,
+                { withCredentials: true }
+            )
+            return res.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
 
 
 
@@ -233,7 +250,17 @@ const patientControlSlice = createSlice({
             })
 
 
-           
+            // book appointment
+            .addCase(bookAppointment.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(bookAppointment.fulfilled, (state, action) => {
+                state.isLoading = false;
+            })
+            .addCase(bookAppointment.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
 
 
     }
