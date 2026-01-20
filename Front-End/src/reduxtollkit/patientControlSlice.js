@@ -91,12 +91,37 @@ export const cancelAppointment = createAsyncThunk(
             return res.data
 
         } catch (error) {
-             return rejectWithValue(
+            return rejectWithValue(
                 error.response?.data?.message || 'Something went wrong'
             );
         }
     }
 )
+
+
+// const getAllDoctors 
+
+export const getAllDoctor = createAsyncThunk(
+    'patientControl/getAllDoctor',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axios.get('http://localhost:8000/hospital/appointments/getAllDoctor',
+                { withCredentials: true }
+            )
+
+            return res.data.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+
+)
+
+
+
+
 
 
 
@@ -107,6 +132,7 @@ const initialState = {
     completedAppointment: [],
     userDetails: null,
     cancelledAppointment: [],
+    doctors: []
 
 }
 
@@ -179,7 +205,7 @@ const patientControlSlice = createSlice({
 
 
             //cancel pending appointment
-             .addCase(cancelAppointment.pending, (state, action) => {
+            .addCase(cancelAppointment.pending, (state, action) => {
                 state.isLoading = true;
             })
             .addCase(cancelAppointment.fulfilled, (state, action) => {
@@ -190,6 +216,25 @@ const patientControlSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+
+            // get all doctors
+            .addCase(getAllDoctor.pending, (state, action) => {
+                state.isLoading = true;
+            })
+            .addCase(getAllDoctor.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.doctors = action.payload
+            }
+            )
+            .addCase(getAllDoctor.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
+           
+
 
     }
 })
