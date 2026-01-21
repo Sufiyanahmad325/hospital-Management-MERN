@@ -1,7 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import {useSelector} from 'react-redux'
 
 const Profile = () => {
+
+  const {userDetails} = useSelector((state)=>state.patientControl)
+  console.log(userDetails)
+
   return (
     <div className="min-h-screen bg-blue-100 p-6 sm:w-[75vw] space-y-6 sm:h-screen sm:overflow-y-auto">
 
@@ -29,21 +34,21 @@ const Profile = () => {
           <div>
             <p className="text-sm text-gray-500">Full Name</p>
             <p className="text-lg font-semibold text-gray-800">
-              Noman Khan
+            {userDetails?.user_id?.name}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Email</p>
             <p className="text-gray-700">
-              noman@gmail.com
+              {userDetails?.user_id?.email}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Phone</p>
             <p className="text-gray-700">
-              +91 98765 43210
+              {userDetails?.phone}
             </p>
           </div>
 
@@ -62,14 +67,14 @@ const Profile = () => {
           <div>
             <p className="text-sm text-gray-500">Age</p>
             <p className="font-medium text-gray-800">
-              26 Years
+              {userDetails?.age}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">Gender</p>
             <p className="font-medium text-gray-800">
-              Male
+              {userDetails?.gender}
             </p>
           </div>
 
@@ -83,7 +88,7 @@ const Profile = () => {
           <div>
             <p className="text-sm text-gray-500">Address</p>
             <p className="font-medium text-gray-800">
-              New Delhi, India
+              {userDetails.address}
             </p>
           </div>
 
