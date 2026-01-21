@@ -19,8 +19,8 @@ export const bookAppointment = asyncHandler(async (req, res) => {
     return res
       .status(404)
       .json({
-        success:false,
-        message:'Patient profile not found'
+        success: false,
+        message: 'Patient profile not found'
       })
   }
 
@@ -192,42 +192,42 @@ export const getCompleteAppointment = asyncHandler(async (req, res) => {
 
 
 // get my appointments
-export const getMyAppointments = asyncHandler(async(req ,res)=>{
+export const getMyAppointments = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-    console.log(userId)
+  console.log(userId)
 
-    // Patient profile find (User ID se)
-    const patient = await Patient.findOne({ user_id: userId });
-    if (!patient) {
-      return res
-        .status(404)
-        .json(new ApiResponse(404, null, "Patient not found"));
-    }
+  // Patient profile find (User ID se)
+  const patient = await Patient.findOne({ user_id: userId });
+  if (!patient) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, null, "Patient not found"));
+  }
 
-    //  Appointments find (Patient PROFILE ID se)
-    const appointments = await Appointment.find({
-      patientId: patient._id,
-      status: "pending",
+  //  Appointments find (Patient PROFILE ID se)
+  const appointments = await Appointment.find({
+    patientId: patient._id,
+    status: "pending",
 
-    })
-      .populate("doctorId", "experience specialization ")  // doctor details ke liye
-      .sort({ date: -1 }); // latest pehle
+  })
+    .populate("doctorId", "experience specialization ")  // doctor details ke liye
+    .sort({ date: -1 }); // latest pehle
 
-    if (appointments.length === 0) {
-      return res
-        .status(200)
-        .json({
-          success:false , 
-          message:'No upcoming appointments found'
-        })
-    }
-
+  if (appointments.length === 0) {
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, appointments, "Appointments fetched successfully")
-      );
+      .json({
+        success: false,
+        message: 'No upcoming appointments found'
+      })
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, appointments, "Appointments fetched successfully")
+    );
 })
 
 
@@ -262,54 +262,54 @@ export const totalCancelledAppointment = asyncHandler(async (req, res) => {
 
 
 // get cancel appointment
-export const cancelAppointment = asyncHandler(async(req,res)=>{
-   const appointmentId = req.params.appointmentId;
-    console.log('appointment ===========>', appointmentId)
-    const userId = req.user._id;
+export const cancelAppointment = asyncHandler(async (req, res) => {
+  const appointmentId = req.params.appointmentId;
+  console.log('appointment ===========>', appointmentId)
+  const userId = req.user._id;
 
-    const patient = await Patient.findOne({ user_id: userId });
-    if (!patient) {
-      return res
-        .status(404)
-        .json({
-          success:false,
-          message:'Patient not found'
-        })
-    }
-
-    const appointment = await Appointment.findOne({
-      _id: appointmentId,
-      patientId: patient._id,
-    });
-
-    if (!appointment) {
-      return res
-        .status(404)
-        .json({
-          success:false,
-          message:'Appointment not found'
-        })
-    }
-
-    if (appointment.status !== "pending") {
-      return res
-        .status(404)
-        .json({
-          success:false,
-          message:'Only pending appointments can be cancelled'
-        }
-        );
-    }
-
-    appointment.status = "cancelled";
-    await appointment.save({ validateBeforeSave: false });
-
+  const patient = await Patient.findOne({ user_id: userId });
+  if (!patient) {
     return res
-      .status(200)
-      .json(
-        new ApiResponse(200, appointment, "Appointment cancelled successfully")
+      .status(404)
+      .json({
+        success: false,
+        message: 'Patient not found'
+      })
+  }
+
+  const appointment = await Appointment.findOne({
+    _id: appointmentId,
+    patientId: patient._id,
+  });
+
+  if (!appointment) {
+    return res
+      .status(404)
+      .json({
+        success: false,
+        message: 'Appointment not found'
+      })
+  }
+
+  if (appointment.status !== "pending") {
+    return res
+      .status(404)
+      .json({
+        success: false,
+        message: 'Only pending appointments can be cancelled'
+      }
       );
-  
+  }
+
+  appointment.status = "cancelled";
+  await appointment.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, appointment, "Appointment cancelled successfully")
+    );
+
 })
 
 
@@ -321,15 +321,15 @@ export const getAllDoctor = asyncHandler(async (req, res) => {
 
   if (!allDoctor || allDoctor.length == 0) {
     res.status(404).json({
-      success:false,
-      message:'there is not any doctor'
+      success: false,
+      message: 'there is not any doctor'
     })
   }
 
   res.status(201).json(
-    new ApiResponse(201 , allDoctor , 'doctor fetched successfully')
+    new ApiResponse(201, allDoctor, 'doctor fetched successfully')
   )
 
-  
+
 
 })
