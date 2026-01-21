@@ -17,7 +17,7 @@ app.use(express.static('public')); // it is used to serve static files from publ
 
 app.use(cookieParser()); // it is used to parse cookies
 
-app.use(cors({origin: process.env.CORS_ORIGIN || "http://localhost:3000" , credentials: true})); // it is used to enable cors such as accessing api from different domain , creadentials: it is used to send cookies from client to server
+app.use(cors({origin: ["http://localhost:5173", "http://localhost:3000"], credentials: true})); // it is used to enable cors such as accessing api from different domain , creadentials: it is used to send cookies from client to server
 
 
 
