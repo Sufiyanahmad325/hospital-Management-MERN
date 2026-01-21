@@ -72,11 +72,13 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day  // maine schema me { expiresIn: "7d" }) de diya hai to kya yaha dena jaruri hai == haan kyuki yaha cookie ki expiry set kr rhe hai aur schema me token ki expiry set kr rhe hai dono alag cheeze hai or dono same honi chahiye taaki cookie expire hone ke baad token bhi expire ho jaye
   };
 
+  const token = user.generateToken();
 
-  res.status(200).cookie("accessToken", user.generateToken(), cookiesOptions).json(
+
+  res.status(200).cookie("accessToken", token, cookiesOptions).json(
     new ApiResponse(200, {
       userData,
-      token: user.generateToken(),
+      token: token,
       role: user.role,
     }, "Login successful")
   )
