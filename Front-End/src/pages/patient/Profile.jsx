@@ -88,7 +88,7 @@ const Profile = () => {
           <div>
             <p className="text-sm text-gray-500">Address</p>
             <p className="font-medium text-gray-800">
-              {userDetails.address}
+              {userDetails?.address}
             </p>
           </div>
 
