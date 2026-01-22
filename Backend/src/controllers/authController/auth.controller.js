@@ -30,7 +30,7 @@ export const registerPatient = asyncHandler(async (req, res) => {
       name,
       age,
       gender,
-      phone: phone, 
+      phone: phone,
       address,
     });
   } catch (error) {
@@ -38,9 +38,9 @@ export const registerPatient = asyncHandler(async (req, res) => {
     return res.status(500).json(new ApiResponse(500, null, "Error creating patient profile: " + error.message));
   }
 
-  
 
-   res.status(201).json(new ApiResponse(201, { user, patientData }, "Patient registered successfully"));
+
+  res.status(201).json(new ApiResponse(201, { user, patientData }, "Patient registered successfully"));
 });
 
 
@@ -84,3 +84,9 @@ export const login = asyncHandler(async (req, res) => {
   )
 }
 );
+
+export const getMe = asyncHandler(async (req, res) => {
+  return res.status(201).json(
+    new ApiResponse(201, req.user, "you are fetched successfully")
+  )
+})
