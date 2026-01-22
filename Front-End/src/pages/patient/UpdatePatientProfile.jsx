@@ -1,6 +1,29 @@
 import React from "react";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getMyProfile, updateUserDetails } from "../../reduxtollkit/patientControlSlice";
+import { useNavigate } from "react-router-dom";
 
 const UpdatePatientProfile = () => {
+
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { userDetails } = useSelector((state) => state.patientControl)
+
+  const [formData, setFormData] = useState({ name: userDetails?.name, phone: userDetails?.phone, age: userDetails?.age, gender: userDetails?.gender, address: userDetails?.address })
+
+  const handleUserProfileUpdate = async (e) => {
+    e.preventDefault()
+    try {
+      let res = await dispatch(updateUserDetails(formData)).unwrap()
+      if(res.success){
+        alert(res.message)
+        navigate('/patient/dashboard')
+      }
+    } catch (error) {
+      alert(error)
+    }
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 p-6 sm:w-[75vw]">
 
@@ -45,6 +68,8 @@ const UpdatePatientProfile = () => {
             </label>
             <input
               type="text"
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.name}
               placeholder="Enter your name"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
@@ -57,6 +82,8 @@ const UpdatePatientProfile = () => {
             </label>
             <input
               type="text"
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              value={formData.phone}
               placeholder="Enter phone number"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
@@ -69,6 +96,8 @@ const UpdatePatientProfile = () => {
             </label>
             <input
               type="number"
+              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+              value={formData.phone}
               placeholder="Enter age"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
@@ -80,6 +109,8 @@ const UpdatePatientProfile = () => {
               Gender
             </label>
             <select
+              onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+              value={formData.gender}
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select gender</option>
@@ -95,6 +126,8 @@ const UpdatePatientProfile = () => {
               Address
             </label>
             <textarea
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              value={formData.address}
               rows="3"
               placeholder="Enter your address"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -104,6 +137,7 @@ const UpdatePatientProfile = () => {
           {/* BUTTON */}
           <div className="sm:col-span-2 flex justify-end">
             <button
+              onClick={(e) => handleUserProfileUpdate(e)}
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-2 rounded-lg font-medium transition"
             >
