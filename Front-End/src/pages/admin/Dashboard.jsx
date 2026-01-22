@@ -14,17 +14,15 @@ const Dashboard = () => {
 
   const { totalDoctors, todayPendingCompletedAppointments, totalDoctorsAppointments, totalPatients, totalDepartments, } = useSelector((state) => state.hospitalManagement);
 
-  useEffect(() => {
-    if (cookies.accessToken) {
-      // Fetch dashboard data here
-      dispatch(getAllDoctors());
-      dispatch(todayAllAppointments());
-      dispatch(getAllDoctorAppointments());
-      dispatch(getAllPatients());
-      dispatch(getAllDepartments());
+  // useEffect(() => {
+  //     // Fetch dashboard data here
+  //     dispatch(getAllDoctors());
+  //     dispatch(todayAllAppointments());
+  //     dispatch(getAllDoctorAppointments());
+  //     dispatch(getAllPatients());
+  //     dispatch(getAllDepartments());
 
-    }
-  }, [cookies.accessToken, dispatch]);
+  // }, [dispatch]);
 
 
   return (
