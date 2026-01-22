@@ -8,15 +8,6 @@ const Appointments = () => {
 
   const dispatch = useDispatch()
 
-
-  // Demo Data
-  const [appointments, setAppointments] = useState([
-    { id: "APP-101", patientName: "Noman", doctorName: "Dr. Rahul Sharma", date: "2025-12-31", time: "10:30 AM", status: "Confirmed" },
-    { id: "APP-102", patientName: "Sajida", doctorName: "Dr. Neha Singh", date: "2025-12-31", time: "11:00 AM", status: "Pending" },
-    { id: "APP-103", patientName: "Sufiyan", doctorName: "Dr. Rahul Sharma", date: "2025-12-31", time: "12:15 PM", status: "Confirmed" },
-    { id: "APP-201", patientName: "Amit", doctorName: "Dr. Neha Singh", date: "2026-01-02", time: "09:00 AM", status: "Confirmed" },
-  ]);
-
   const { totalDoctorsAppointments } = useSelector((state) => state.hospitalManagement)
 
   console.log(totalDoctorsAppointments)
@@ -24,7 +15,6 @@ const Appointments = () => {
   const cancelAppointment = async (id) => {
     if (window.confirm("Are you sure you want to cancel this appointment?")) {
       let res = await dispatch(cancelledAppointmentByAdmin(id)).unwrap()
-      console.log('i am appointment===> ' , res)
       if(res.success){
         dispatch(getAllDoctorAppointments())
       }
