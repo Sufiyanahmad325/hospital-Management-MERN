@@ -141,6 +141,28 @@ export const bookAppointment = createAsyncThunk(
 )
 
 
+export const updateUserDetails = createAsyncThunk(
+    'patientControl/updateUserDetails',
+    async (data, { rejectWithValue }) => {
+        try {
+            const res = await axios.put('http://localhost:8000/hospital/patient/updateMyProfile',
+                data,
+                { withCredentials: true }
+            )
+            console.log("redux details okay ==> ", res.data.data)
+            return res.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+
+
+
+
 
 
 
@@ -261,6 +283,23 @@ const patientControlSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+
+            // user update details
+
+            .addCase(updateUserDetails.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(updateUserDetails.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.userDetails = action.payload.data
+            })
+            .addCase(updateUserDetails.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
 
 
     }
