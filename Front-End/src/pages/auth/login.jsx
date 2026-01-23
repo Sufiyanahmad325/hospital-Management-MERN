@@ -1,9 +1,8 @@
-// src/pages/auth/Login.jsx
 import { NavLink, useNavigate } from "react-router-dom";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAllUsers } from "../../reduxtollkit/hospitalManagementSlice";
-import { useCookies } from "react-cookie";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,8 +11,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-  const {userDetails} = useSelector((state) => state.hospitalManagement);
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
 
   // console.log(userDetails)
 
@@ -21,21 +18,40 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    let res =await dispatch(loginAllUsers({email, password})).unwrap();
-    if(res.success ){
-      console.log(res)
-      setCookie('accessToken', res.data.token, { path: '/', maxAge: 7 * 24 * 60 * 60 });
+    let res = await dispatch(loginAllUsers({ email, password })).unwrap();
+    if (res.success) {
       localStorage.setItem("role", res.data.role);
     }
 
-
     const role = localStorage.getItem("role");
-    
+
     if (role === "admin") navigate("/admin/dashboard");
     if (role === "doctor") navigate("/doctor/dashboard");
     if (role === "patient") navigate("/patient/dashboard");
 
   };
+
+
+ useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/hospital/auth/getMe", {
+          withCredentials: true,
+        });
+
+        const role = res.data?.data?.role; 
+
+        // replace: true ka matlab hota hai  navigate karte time browser history me purana page remove (replace) kar dena. User ko new page pe bhej do aur back button se wapas us page pe na jaane do.
+        if (role === "admin") navigate("/admin/dashboard", { replace: true });
+        if (role === "doctor") navigate("/doctor/dashboard", { replace: true });
+        if (role === "patient") navigate("/patient/dashboard", { replace: true });
+      } catch (error) {
+        console.log('not logged in -> stay on login page')
+      }
+    };
+
+    checkLogin();
+  }, [navigate]);
 
   return (
     <div
