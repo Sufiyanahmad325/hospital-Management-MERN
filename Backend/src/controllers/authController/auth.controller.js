@@ -90,3 +90,30 @@ export const getMe = asyncHandler(async (req, res) => {
     new ApiResponse(201, req.user, "you are fetched successfully")
   )
 })
+
+
+
+export const logoutUser = asyncHandler(async (req, res) => {
+  const id = req.user._id
+  const user = await User.findOne({ _id: id })
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'user does not exist'
+    })
+  }
+
+
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    sameSite: "Strict",
+    path: "/",
+  });
+
+  return res.status(200).json(
+    new ApiResponse(true, [], 'You are logged out successfully')
+  );
+
+
+})
