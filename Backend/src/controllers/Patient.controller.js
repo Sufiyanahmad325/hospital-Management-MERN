@@ -64,32 +64,4 @@ export const updateMyProfile = async (req, res) => {
 
 
 
-export const logoutPatient = asyncHandler(async (req, res) => {
-  const id = req.user._id
-  const user = await User.findOne({ _id: id })
 
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'user does not exist'
-    })
-  }
-
-  const cookiesOptions = {
-    httpOnly: true,
-    sameSite: "Strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 day  // maine schema me { expiresIn: "7d" }) de diya hai to kya yaha dena jaruri hai == haan kyuki yaha cookie ki expiry set kr rhe hai aur schema me token ki expiry set kr rhe hai dono alag cheeze hai or dono same honi chahiye taaki cookie expire hone ke baad token bhi expire ho jaye
-  };
-
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    sameSite: "Strict",
-    path: "/",
-  });
-
-  return res.status(200).json(
-    new ApiResponse(true, [], 'You are logged out successfully')
-  );
-
-
-})
