@@ -167,13 +167,32 @@ export const cancelledAppointmentByAdmin = createAsyncThunk(
                 {},
                 { withCredentials: true }
             )
-            console.log(response.data ,"================>")
-           return response.data
+            console.log(response.data, "================>")
+            return response.data
         } catch (error) {
             return rejectWithValue(error.response?.message || 'something went wrong')
         }
     }
 )
+
+
+export const logoutUser = createAsyncThunk(
+    'patientControl/logoutPatient',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axios.get('http://localhost:8000/hospital/auth/logoutUser',
+                { withCredentials: true }
+            )
+            return res.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+
 
 
 const initialState = {
@@ -367,6 +386,20 @@ const hospitalManagementSlice = createSlice({
             })
             .addCase(cancelledAppointmentByAdmin.rejected, (state, action) => {
                 state.isLoading = false
+                state.error = action.error.message;
+            })
+
+
+            // logout user
+
+            .addCase(logoutUser.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(logoutUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+            })
+            .addCase(logoutUser.rejected, (state, action) => {
+                state.isLoading = false;
                 state.error = action.error.message;
             })
 
