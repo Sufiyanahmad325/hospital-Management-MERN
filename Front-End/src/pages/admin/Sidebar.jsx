@@ -1,27 +1,27 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { MdDashboardCustomize, MdMenu } from "react-icons/md";
 import { FcDepartment } from "react-icons/fc";
 import { FaUserDoctor } from "react-icons/fa6";
 import { CiViewList } from "react-icons/ci";
 import { IoPeople } from "react-icons/io5";
 import { useState } from "react";
-import { useCookies } from "react-cookie";
 import { CiLogout } from "react-icons/ci";
+import {useDispatch} from 'react-redux'
+import { logoutUser } from "../../reduxtollkit/hospitalManagementSlice";
 
 const Sidebar = () => {
   const [show, setShow] = useState(false);
-   const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+  const disptach = useDispatch()
+  const navigate = useNavigate()
 
-const handleLogout = () => {
-  removeCookie("accessToken", {
-    path: "/",
-    sameSite: "lax",
-  });
-
-  localStorage.removeItem("role");
-      console.log(cookies.accessToken)
-
-};
+  const handleLogout = async() => {
+   const res = await disptach(logoutUser()).unwrap()
+   if(res.success){
+        localStorage.removeItem('role')
+        alert(res.message)
+        navigate('/')
+   }
+  };
 
 
 
@@ -82,7 +82,7 @@ const handleLogout = () => {
           </NavLink>
 
 
-          <button onClick={()=>handleLogout()} className={`flex gap-4 items-center px-2`}>
+          <button onClick={handleLogout} className={`flex gap-3 items-center p-2 hover:bg-blue-600 w-full rounded-md`}>
             <CiLogout />
             Logout
           </button>
