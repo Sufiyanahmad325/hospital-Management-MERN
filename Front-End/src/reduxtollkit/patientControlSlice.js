@@ -160,11 +160,11 @@ export const updateUserDetails = createAsyncThunk(
 )
 
 
-export const logoutPatient = createAsyncThunk(
+export const logoutUser = createAsyncThunk(
     'patientControl/logoutPatient',
     async (_, { rejectWithValue }) => {
         try {
-            const res = await axios.get('http://localhost:8000/hospital/patient/logoutPatient',
+            const res = await axios.get('http://localhost:8000/hospital/auth/logoutUser',
                 { withCredentials: true }
             )
             return res.data
@@ -315,13 +315,13 @@ const patientControlSlice = createSlice({
 
             // logout patient
 
-            .addCase(logoutPatient.pending, (state, action) => {
+            .addCase(logoutUser.pending, (state, action) => {
                 state.isLoading = true
             })
-            .addCase(logoutPatient.fulfilled, (state, action) => {
+            .addCase(logoutUser.fulfilled, (state, action) => {
                 state.isLoading = false;
             })
-            .addCase(logoutPatient.rejected, (state, action) => {
+            .addCase(logoutUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             })
