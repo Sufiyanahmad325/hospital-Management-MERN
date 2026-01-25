@@ -22,8 +22,8 @@ const Appointments = () => {
   };
 
   // Logic for Filtering and Searching
-  const filteredAppointments = totalDoctorsAppointments.filter(app => { //ye kab chalega
-    const matchesSearch = app._id.includes(searchTerm.toLowerCase()); // ye line kab chale
+  const filteredAppointments = totalDoctorsAppointments.filter(app => { 
+    const matchesSearch = app._id.includes(searchTerm.toLowerCase()); 
     const isToday = app.date === new Date().toISOString().split("T")[0]; // Real app mein new Date() use hoga ye line kab chalega
 
     if (filter === "today") return matchesSearch && isToday;
