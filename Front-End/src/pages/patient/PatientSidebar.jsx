@@ -7,7 +7,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
-import { logoutPatient } from "../../reduxtollkit/patientControlSlice";
+import { logoutUser } from "../../reduxtollkit/patientControlSlice";
 
 const PatientSidebar = () => {
   const [open, setOpen] = useState(false);
@@ -17,7 +17,7 @@ const PatientSidebar = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
 
   const handleLogout = async () => {
-    let res = await dispatch(logoutPatient()).unwrap()
+    let res = await dispatch(logoutUser()).unwrap()
     if (res.success) {
       alert(res.message)
     }
