@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaCalendarCheck } from "react-icons/fa";
@@ -6,20 +6,22 @@ import { IoPerson } from "react-icons/io5";
 import { BiLogOut } from "react-icons/bi";
 import { useState } from "react";
 import { useCookies } from 'react-cookie'
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../reduxtollkit/doctorControlSlice";
 
 const DoctorSidebar = () => {
 
   const [openHamburger, setOpenHamburger] = useState(false);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
-
-  const logoutDoctor = () => {
-    removeCookie("accessToken", {
-      path: "/",
-      sameSite: "lax",
-    });
-    localStorage.removeItem("role");
-    console.log(cookies.accessToken)
+  const logoutDoctor = async () => {
+    const res = await dispatch(logoutUser()).unwrap()
+    if (res.success) {
+      alert(res.message)
+      localStorage.removeItem("role");
+      navigate('/')
+    }
   }
 
   const linkStyle = ({ isActive }) =>
@@ -70,7 +72,7 @@ const DoctorSidebar = () => {
           My Profile
         </NavLink>
 
-        <button onClick={logoutDoctor} className={`flex gap-3 items-center p-2`}>
+        <button onClick={logoutDoctor} className={`flex gap-3 items-center p-2 hover:bg-green-100 w-full rounded-md`}>
           <BiLogOut size={20} />
           Logout
         </button>
