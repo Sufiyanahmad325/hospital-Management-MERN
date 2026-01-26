@@ -34,7 +34,7 @@ export const getAllDayAppointment = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             let res = await axios("http://localhost:8000/hospital/doctor/getAllDayAppointment", { withCredentials: true })
-            console.log(res.data.data , "slice one")
+            console.log(res.data.data, "slice one")
             return res.data.data
         } catch (error) {
             rejectWithValue(error.data?.data?.message || 'something went wrong')
@@ -68,11 +68,29 @@ export const getDoctorDetails = createAsyncThunk(
                 { withCredentials: true }
             )
 
-            console.log('i am slice ===> ' , response.data.data)
+            console.log('i am slice ===> ', response.data.data)
             return response.data.data
 
         } catch (error) {
             rejectWithValue(error.data?.data?.message || 'something went wrong')
+        }
+    }
+)
+
+
+
+export const logoutUser = createAsyncThunk(
+    'patientControl/logoutPatient',
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await axios.get('http://localhost:8000/hospital/auth/logoutUser',
+                { withCredentials: true }
+            )
+            return res.data
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || 'Something went wrong'
+            );
         }
     }
 )
@@ -166,7 +184,25 @@ const doctorControlSlice = createSlice({
                 state.isLoading = false
                 state.error = action.error.message
             })
+
+
+            // logout user
+
+            .addCase(logoutUser.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(logoutUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+            })
+            .addCase(logoutUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
     }
+
+
+
 
 })
 
