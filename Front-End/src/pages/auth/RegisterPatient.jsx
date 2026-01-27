@@ -24,9 +24,28 @@ const RegisterPatient = () => {
     });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
 
-  
+    try {
+      setLoading(true);
 
+      const res = await axios.post(
+        "http://localhost:8000/hospital/auth/registerPatient",
+        formData
+      );
+
+      alert(res.data.message);
+      navigate("/");
+
+    } catch (error) {
+      const msg = error.response?.data?.message || "Something went wrong";
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-blue-400 flex items-center justify-center p-4">
@@ -37,6 +56,7 @@ const RegisterPatient = () => {
         </h2>
 
         <form
+          onSubmit={handleSubmit}
           className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
 
