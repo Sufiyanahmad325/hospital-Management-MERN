@@ -26,14 +26,15 @@ import BookAppointment from "../pages/patient/BookAppointments";
 import PatientProfile from "../pages/patient/Profile";
 import Login from "../pages/auth/login";
 import UpdatePatientProfile from "../pages/patient/UpdatePatientProfile";
+import RegisterPatient from "../pages/auth/RegisterPatient";
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* 🔐 Auth */}
 
-      <Route path="/" element={<Login />} />
-      {/* <Route path="/login" element={<Login />} /> */}
+      <Route index element={<Login />} />
+      <Route path="/register" element={<RegisterPatient />} />
 
       {/* 👑 Admin */}
       <Route
