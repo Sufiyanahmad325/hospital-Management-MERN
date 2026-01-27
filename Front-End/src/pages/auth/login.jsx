@@ -32,14 +32,14 @@ const Login = () => {
   };
 
 
- useEffect(() => {
+  useEffect(() => {
     const checkLogin = async () => {
       try {
         const res = await axios.get("http://localhost:8000/hospital/auth/getMe", {
           withCredentials: true,
         });
 
-        const role = res.data?.data?.role; 
+        const role = res.data?.data?.role;
 
         // replace: true ka matlab hota hai  navigate karte time browser history me purana page remove (replace) kar dena. User ko new page pe bhej do aur back button se wapas us page pe na jaane do.
         if (role === "admin") navigate("/admin/dashboard", { replace: true });
