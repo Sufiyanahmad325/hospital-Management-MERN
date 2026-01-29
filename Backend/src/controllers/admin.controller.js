@@ -477,3 +477,51 @@ export const getDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
 
 
 
+export const editDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
+  const { name, email, phone, department, specialization, description, experience, availableDays, availableSlots } = req.body;
+  const { doctorId } = req.params;
+
+  const doctor = await Doctor.findById(doctorId)
+
+  if (!doctor) {
+    return res.status(404).json({ message: "Doctor not found" });
+  }
+
+
+  const userDoctor = await User.findById(doctor.user_id._id);
+
+  if (!userDoctor) {
+    return res.status(404).json({ message: 'User associated with doctor not found' });
+  }
+
+  // Update user details
+  userDoctor.name = name || userDoctor.name;
+  userDoctor.email = email || userDoctor.email;
+
+  // Update doctor profile details
+  doctor.phone = phone || doctor.phone;
+  doctor.department = department || doctor.department;
+  doctor.specialization = specialization || doctor.specialization;
+  doctor.description = description || doctor.description;
+  doctor.experience = experience || doctor.experience;
+  doctor.availableDays = availableDays || doctor.availableDays;
+  doctor.availableSlots = availableSlots || doctor.availableSlots;
+
+  try {
+    await userDoctor.save({ validateBeforeSave: false });
+    await doctor.save({ validateBeforeSave: false });
+  }
+  catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
+
+
+  return res.status(200).json(
+    new ApiResponse(200, "Doctor details updated successfully by admin", { userDoctor, doctor })
+  );
+
+
+
+
+});
