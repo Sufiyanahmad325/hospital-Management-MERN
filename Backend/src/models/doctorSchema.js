@@ -20,6 +20,10 @@ const doctorSchema = new mongoose.Schema(
       min: 0,
     },
 
+    phone: {
+      type: String,
+    },
+
     specialization: {
       type: String,
       required: true,
@@ -41,6 +45,13 @@ const doctorSchema = new mongoose.Schema(
         "Hepatologist",
         "Gastrointestinal Surgeon",
       ],
+    },
+
+
+    description: {
+      type: String,
+      required: true,
+      maxLength: 500,
     },
 
     availableDays: {
