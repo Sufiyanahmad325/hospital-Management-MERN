@@ -340,14 +340,14 @@ export const cancelAppointmentByAdmin = asyncHandler(async (req, res) => {
   appointment.status = 'cancelled by admin',
 
     await appointment.save({ validateBeforeSave: false });
- 
-    const allAppointments = await Appointment.find()
+
+  const allAppointments = await Appointment.find()
 
   return res.status(200).json(
     {
-      success:true,
+      success: true,
       allAppointments,
-      message:"Appointment cancelled successfully by admin"
+      message: "Appointment cancelled successfully by admin"
     }
   );
 })
@@ -445,6 +445,34 @@ export const deletePatientWithUser = asyncHandler(async (req, res) => {
 
 
 })
+
+
+
+
+export const getDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
+  const { doctorId } = req.params;
+
+  const isAvailableAdmin = await User.find({
+    _id: req.user._id,
+    role: 'admin'
+  })
+
+  if (!isAvailableAdmin) {
+    return res.status(403).json({ message: 'Access denied, you are not admin' });
+  }
+
+  const doctor = await Doctor.findById(doctorId)
+    .populate({ path: "user_id", select: "name email" });
+
+  if (!doctor) {
+    return res.status(404).json({ message: "Doctor not found" });
+  }
+
+
+  return res.status(200).json(
+    new ApiResponse(200, doctor, "Doctor details retrieved successfully")
+  );
+});
 
 
 
