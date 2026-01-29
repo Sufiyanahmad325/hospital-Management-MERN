@@ -12,6 +12,8 @@ import {
   editDepartmentDetails,
   deletePatientWithUser,
   cancelAppointmentByAdmin,
+  editDoctorDetailsByAdmin,
+  getDoctorDetailsByAdmin,
 
 } from "../controllers/admin.controller.js";
 
@@ -39,5 +41,7 @@ router.put("/ChangeDoctorPasswordByAdmin/:doctorId", ChangeDoctorPasswordByAdmin
 router.put('/editDepartmentDetails', editDepartmentDetails)
 router.post('/deletePatientWithUser', deletePatientWithUser)
 router.post('/cancelAppointmentByAdmin/:appointmentId', cancelAppointmentByAdmin)
+router.get('/getDoctorDetailsByAdmin/:doctorId', getDoctorDetailsByAdmin)
+router.put('/editDoctorDetailsByAdmin/:doctorId', editDoctorDetailsByAdmin)
 export default router;
 
