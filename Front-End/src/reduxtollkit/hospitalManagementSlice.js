@@ -193,6 +193,28 @@ export const logoutUser = createAsyncThunk(
 )
 
 
+export const editDoctorDetailsByAdmin = createAsyncThunk(
+    'hospitalMangement/editDoctorDetailsByAdmin',
+    async ( {doctorId, doctorDetails} , { rejectWithValue }) => {
+        console.log(doctorId , doctorDetails)
+        try {
+            const response = await axios.put(
+                `http://localhost:8000/hospital/admin/editDoctorDetailsByAdmin/${doctorId}`,
+                doctorDetails,
+                { withCredentials: true }
+            )
+            return response.data
+        }
+
+        catch (error) {
+            return rejectWithValue(error.response?.message || 'something went wrong')
+        }
+    }
+)
+
+
+
+
 
 
 const initialState = {
@@ -402,6 +424,23 @@ const hospitalManagementSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.error.message;
             })
+
+            // edit doctor details by admin
+
+            .addCase(editDoctorDetailsByAdmin.pending, (state, action) => { 
+                state.isLoading = true
+            }
+            )
+            .addCase(editDoctorDetailsByAdmin.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(editDoctorDetailsByAdmin.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
+            
 
     }
 })
