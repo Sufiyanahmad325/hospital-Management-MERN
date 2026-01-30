@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addDoctor, getAllDoctors } from "../../reduxtollkit/hospitalManagementSlice";
+import { NavLink } from "react-router-dom";
 
 const Doctors = () => {
 
@@ -290,6 +291,7 @@ const Doctors = () => {
                 <th className="border p-2 text-left">Specialization</th>
                 <th className="border p-2 text-left">Experience</th>
                 <th className="border p-2 text-left">Days</th>
+                <th className="border p-2 text-left">Edit Details</th>
               </tr>
             </thead>
             <tbody>
@@ -301,6 +303,9 @@ const Doctors = () => {
                   <td className="border p-2">{doc.specialization}</td>
                   <td className="border p-2">{doc.experience}</td>
                   <td className="border p-2">{doc.availableDays.join(',')}</td>
+                  <td className="border p-2 flex justify-center">
+                    <NavLink to={`/admin/change-doctor-details/${doc._id}`} className="bg-gray-200 px-5 rounded-2xl">Edit</NavLink>
+                    </td>
                 </tr>
               ))}
             </tbody>
