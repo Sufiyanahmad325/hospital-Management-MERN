@@ -213,7 +213,21 @@ export const editDoctorDetailsByAdmin = createAsyncThunk(
 )
 
 
-
+export const getDoctorDetailsByAdmin = createAsyncThunk(
+    'hospitalMangement/getDoctorDetailsByAdmin',
+    async ( doctorId , { rejectWithValue }) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8000/hospital/admin/getDoctorDetailsByAdmin/${doctorId}`,
+                { withCredentials: true }
+            )
+            return response.data
+        }
+        catch (error) {
+            return rejectWithValue(error.response?.message || 'something went wrong')
+        }
+    }
+)   
 
 
 
@@ -440,7 +454,18 @@ const hospitalManagementSlice = createSlice({
             })
 
 
-            
+            // get doctor details by admin
+
+            .addCase(getDoctorDetailsByAdmin.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(getDoctorDetailsByAdmin.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(getDoctorDetailsByAdmin.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
 
     }
 })
