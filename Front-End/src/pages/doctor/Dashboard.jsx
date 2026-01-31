@@ -6,8 +6,9 @@ const DoctorDashboard = () => {
 
   const [completedAppointment, setCompletedAppointment] = useState('00')
 
-  const { doctorTodayAllAppointments, doctorTodayPendingAppointments ,doctorAllDayTotalAppointments } = useSelector((state) => state.doctorControl)
+  const { doctorTodayAllAppointments, doctorTodayPendingAppointments, doctorAllDayTotalAppointments } = useSelector((state) => state.doctorControl)
   const dispatch = useDispatch()
+  console.log('doctorTodayAllAppointments', doctorTodayAllAppointments)
 
   useEffect(() => {
     let a = doctorTodayAllAppointments.filter(ele => ele.status === 'completed')
@@ -17,8 +18,8 @@ const DoctorDashboard = () => {
   const handleUpdate = async (id) => {
     let res = await dispatch(completeAppointment(id)).unwrap()
     if (res.success) {
-       dispatch(getAllTodayAppointments())
-       dispatch(getTodayAllPendingAppointment())
+      dispatch(getAllTodayAppointments())
+      dispatch(getTodayAllPendingAppointment())
     }
   }
 
@@ -100,7 +101,7 @@ const DoctorDashboard = () => {
 
             <tbody>
               {
-                doctorTodayAllAppointments?.length > 0 && doctorTodayAllAppointments.map((ele, ind) => (
+                doctorTodayPendingAppointments?.length > 0 && doctorTodayPendingAppointments.map((ele, ind) => (
                   <tr key={ind} className="hover:bg-gray-50">
                     <td className="border p-2">{ele.patientId?.name}</td>
                     <td className="border p-2">{ele.patientId?.address}</td>
