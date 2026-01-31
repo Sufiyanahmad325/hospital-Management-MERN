@@ -386,7 +386,7 @@ export const ChangeDoctorPasswordByAdmin = asyncHandler(async (req, res) => {
   await userDoctor.save({ validateBeforeSave: false });
 
   return res.status(200).json(
-    new ApiResponse(200, "Doctor password changed successfully by admin", userDoctor)
+    new ApiResponse(200, userDoctor , "Doctor password changed successfully by admin")
   );
 });
 
@@ -478,7 +478,7 @@ export const getDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
 
 
 export const editDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
-  const { name, email, phone, department, specialization, description, experience, availableDays, availableSlots } = req.body;
+  const { name, phone, department, specialization, description, experience, availableDays, availableSlots } = req.body;
   const { doctorId } = req.params;
 
   const doctor = await Doctor.findById(doctorId)
@@ -496,7 +496,7 @@ export const editDoctorDetailsByAdmin = asyncHandler(async (req, res) => {
 
   // Update user details
   userDoctor.name = name || userDoctor.name;
-  userDoctor.email = email || userDoctor.email;
+
 
   // Update doctor profile details
   doctor.phone = phone || doctor.phone;
