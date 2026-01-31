@@ -7,13 +7,14 @@ import ApiError from "../utils/apiError.js";
 
 
 export const getTodayDoctorAppointment = asyncHandler(async (req, res) => {
-  const { doctorId } = req.user._id
+  const  doctorId  = req.user._id
 
   let todayDate = new Date().toISOString().split("T")[0];
 
-  const user = await Doctor.find({ doctorId: doctorId })
+  const doctor = await Doctor.findOne({ user_id: doctorId })
 
-  if (!user) {
+
+  if (!doctor) {
     return res.status(401).json({
       success: false,
       message: 'only doctor can Access'
@@ -21,13 +22,14 @@ export const getTodayDoctorAppointment = asyncHandler(async (req, res) => {
   }
 
   const TodayAppointments = await Appointment.find({
-    doctorid: doctorId,
+    doctorId: doctor.id,
     date: todayDate,
     // status: 'pending' || 'completed' 
     status: { $in: ['pending', 'completed'] } // i doing this becouse i have to filter completed and pending appointment in frontend that how much appointment has been completed and pending
   }).sort({ createdAt: 1 })
     .populate({ path: 'patientId', select: "name address" })
 
+    console.log(TodayAppointments)
 
   return res.status(201).json(
     new ApiResponse(201, TodayAppointments, 'Today Appointments fetch successfully')
