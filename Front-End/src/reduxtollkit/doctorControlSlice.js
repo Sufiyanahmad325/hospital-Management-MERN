@@ -34,7 +34,6 @@ export const getAllDayAppointment = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             let res = await axios("http://localhost:8000/hospital/doctor/getAllDayAppointment", { withCredentials: true })
-            console.log(res.data.data, "slice one")
             return res.data.data
         } catch (error) {
             rejectWithValue(error.data?.data?.message || 'something went wrong')
@@ -68,7 +67,6 @@ export const getDoctorDetails = createAsyncThunk(
                 { withCredentials: true }
             )
 
-            console.log('i am slice ===> ', response.data.data)
             return response.data.data
 
         } catch (error) {
