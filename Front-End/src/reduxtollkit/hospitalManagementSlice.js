@@ -196,7 +196,6 @@ export const logoutUser = createAsyncThunk(
 export const editDoctorDetailsByAdmin = createAsyncThunk(
     'hospitalMangement/editDoctorDetailsByAdmin',
     async ( {doctorId, doctorDetails} , { rejectWithValue }) => {
-        console.log(doctorId , doctorDetails)
         try {
             const response = await axios.put(
                 `http://localhost:8000/hospital/admin/editDoctorDetailsByAdmin/${doctorId}`,
@@ -228,6 +227,25 @@ export const getDoctorDetailsByAdmin = createAsyncThunk(
         }
     }
 )   
+
+
+export const changeDoctorPasswordByAdmin = createAsyncThunk(
+    'hospitalMangement/changeDoctorPasswordByAdmin',
+    async({doctorId , newPassword} , {rejectWithValue})=>{
+        console.log(doctorId , newPassword)
+        try {
+            const res = await axios.put(`http://localhost:8000/hospital/admin/ChangeDoctorPasswordByAdmin/${doctorId}`,
+                    {newPassword},
+                    {withCredentials:true}
+            )
+
+            return res.data
+
+        } catch (error) {
+            return rejectWithValue(error.response?.message || 'something went wrong')
+        }
+    }
+)
 
 
 
@@ -463,6 +481,20 @@ const hospitalManagementSlice = createSlice({
                 state.isLoading = false
             })
             .addCase(getDoctorDetailsByAdmin.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.error.message;
+            })
+
+
+            // change doctor password by admin
+
+            .addCase(changeDoctorPasswordByAdmin.pending, (state, action) => {
+                state.isLoading = true
+            })
+            .addCase(changeDoctorPasswordByAdmin.fulfilled, (state, action) => {
+                state.isLoading = false
+            })
+            .addCase(changeDoctorPasswordByAdmin.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.error.message;
             })
