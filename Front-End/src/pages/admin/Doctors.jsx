@@ -58,7 +58,7 @@ const Doctors = () => {
     "03:45 PM",
     "04:00 PM"
   ]
-  const { totalDepartments ,totalDoctors } = useSelector((state) => state.hospitalManagement)
+  const { totalDepartments, totalDoctors } = useSelector((state) => state.hospitalManagement)
   const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false)
   const [doctorFrom, setDoctorFrom] = useState({
     name: "",
@@ -71,7 +71,7 @@ const Doctors = () => {
     availableDays: [],
     availableSlots: []
   })
-  
+
 
   const dispatch = useDispatch()
 
@@ -305,7 +305,7 @@ const Doctors = () => {
                   <td className="border p-2">{doc.availableDays.join(',')}</td>
                   <td className="border p-2 flex justify-center">
                     <NavLink to={`/admin/change-doctor-details/${doc._id}`} className="bg-gray-200 px-5 rounded-2xl">Edit</NavLink>
-                    </td>
+                  </td>
                 </tr>
               ))}
             </tbody>
