@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllDoctors, getAllDepartments } from "../../reduxtollkit/hospitalManagementSlice";
-import axios from "axios";
-import { useParams } from "react-router-dom";
+import { getAllDoctors, getAllDepartments, getDoctorDetailsByAdmin, editDoctorDetailsByAdmin, changeDoctorPasswordByAdmin } from "../../reduxtollkit/hospitalManagementSlice";
+import { useNavigate, useParams } from "react-router-dom";
 
 const availableDaysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const allSlots = [
@@ -14,34 +13,67 @@ const allSlots = [
 const ChangeDoctorDetails = () => {
     const dispatch = useDispatch();
     const { doctorId } = useParams();
-    const [doctorsDetails, setDoctorsDetails] = useState({})
-    const { totalDoctors, totalDepartments } = useSelector((state) => state.hospitalManagement);
+    const navigate = useNavigate()
+    const {totalDepartments} = useSelector((state) => state.hospitalManagement);
 
-    const [selectedDoctorId, setSelectedDoctorId] = useState("");
+
+    const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
         name: "",
         email: "",
         phone: "",
-        departmentId: "",
+        department: "",
         specialization: "",
         description: "",
         experience: "",
         availableDays: [],
         availableSlots: []
     });
-
-
-
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
 
 
     const handleChangeDetails = async (id) => {
-        console.log("first====> ", id)
-        if (!selectedDoctorId) {
+        setIsLoading(true)
+        if (!doctorId) {
             alert("Please select a doctor.");
             return;
+        }
+
+        try {
+            const res = await dispatch(editDoctorDetailsByAdmin({ doctorId, doctorDetails: form })).unwrap()
+            if (res.success) {
+                dispatch(getAllDoctors())
+                alert("Doctor details updated successfully!")
+                setIsLoading(false)
+                navigate(-1)
+            }
+        } catch (error) {
+            setIsLoading(false)
+            alert(error.response?.message || 'something went wrong')
+        }
+    }
+
+
+
+    const handleChangePassword = async () => {
+        if (newPassword !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+        setIsLoading(true)
+        try {
+            const res = await dispatch(changeDoctorPasswordByAdmin({ doctorId, newPassword })).unwrap();
+            if (res.success) {
+                alert("Password changed successfully!");
+                setIsLoading(false)
+                setNewPassword("");
+                setConfirmPassword("");
+                navigate(-1);
+            }
+        } catch (error) {
+            setIsLoading(false)
+            alert("Failed to change password. Please try again.");
         }
     }
 
@@ -57,13 +89,25 @@ const ChangeDoctorDetails = () => {
     useEffect(() => {
         const fetchDoctorDetails = async () => {
             try {
-                const res = await axios.get(`http://localhost:8000/hospital/admin/getDoctorDetailsByAdmin/${doctorId}`);
-                setDoctorsDetails(res.data);
+                const res = await dispatch(getDoctorDetailsByAdmin(doctorId)).unwrap();
+                setForm({
+                    name: res.data.user_id.name,
+                    email: res.data.user_id.email,
+                    phone: res.data.phone || "N/A",
+                    department: res.data.department,
+                    specialization: res.data.specialization,
+                    description: res.data.description || "the doctor has not added description",
+                    experience: res.data.experience,
+                    availableDays: res.data.availableDays,
+                    availableSlots: res.data.availableSlots
+                })
+                console.log("Doctor details fetched:", res.data);
             } catch (error) {
                 console.error("Error fetching doctor details:", error);
             }
         };
         fetchDoctorDetails();
+
     }, [doctorId]);
 
 
@@ -76,18 +120,7 @@ const ChangeDoctorDetails = () => {
 
                 <div className="mb-6">
                     <label className="block text-sm font-medium mb-2">Select Doctor</label>
-                    <select
-                        value={selectedDoctorId}
-                        onChange={(e) => setSelectedDoctorId(e.target.value)}
-                        className="w-full border p-2 rounded"
-                    >
-                        <option value="">-- Choose doctor --</option>
-                        {totalDoctors?.map((doc) => (
-                            <option key={doc._id} value={doc._id}>
-                                {doc.user_id?.name} — {doc.user_id?.email}
-                            </option>
-                        ))}
-                    </select>
+
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -105,8 +138,8 @@ const ChangeDoctorDetails = () => {
                         <label className="block text-sm font-medium">Email</label>
                         <input
                             value={form.email}
-                            onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
-                            className="w-full border p-2 rounded"
+                            disabled={true}
+                            className="w-full border p-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed  disabled:text-gray-600"
                             placeholder="Doctor email"
                         />
                     </div>
@@ -124,8 +157,8 @@ const ChangeDoctorDetails = () => {
                     <div>
                         <label className="block text-sm font-medium">Department</label>
                         <select
-                            value={form.departmentId}
-                            onChange={(e) => setForm(prev => ({ ...prev, departmentId: e.target.value }))}
+                            value={form.department}
+                            onChange={(e) => setForm(prev => ({ ...prev, department: e.target.value }))}
                             className="w-full border p-2 rounded"
                         >
                             <option value="">Select department</option>
@@ -174,7 +207,12 @@ const ChangeDoctorDetails = () => {
                     <div className="flex flex-wrap gap-3">
                         {availableDaysList.map((day) => (
                             <label key={day} className="cursor-pointer px-3 py-1 rounded border">
-                                <input type="checkbox" className="mr-2" />
+                                <input type="checkbox" checked={form.availableDays.includes(day)}
+                                    onChange={() => setForm(prev => ({
+                                        ...prev, availableDays: form.availableDays.includes(day)
+                                            ? form.availableDays.filter(d => d !== day) : [...form.availableDays, day]
+                                    }))}
+                                    className="mr-2" />
                                 {day}
                             </label>
                         ))}
@@ -186,7 +224,11 @@ const ChangeDoctorDetails = () => {
                     <div className="flex flex-wrap gap-2">
                         {allSlots.map((slot) => (
                             <label key={slot} className="cursor-pointer px-2 py-1 rounded border">
-                                <input type="checkbox" className="mr-1" />
+                                <input type="checkbox" checked={form.availableSlots.includes(slot)}
+                                    onChange={() => setForm(prev => ({
+                                        ...prev, availableSlots: form.availableSlots.includes(slot) ? form.availableSlots.filter(formSlot => formSlot != slot) : [...form.availableSlots, slot]
+                                    }))}
+                                    className="mr-1" />
                                 {slot}
                             </label>
                         ))}
@@ -194,7 +236,7 @@ const ChangeDoctorDetails = () => {
                 </div>
 
                 <button
-                    onClick={(e) => handleChangeDetails(doc._id)}
+                    onClick={(e) => handleChangeDetails()}
                     className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
                     Save Changes
                 </button>
@@ -226,13 +268,16 @@ const ChangeDoctorDetails = () => {
                                 placeholder="Confirm new password"
                             />
                         </div>
-                        <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Change Password</button>
+                        <button
+                            onClick={() => handleChangePassword()}
+                            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Change Password</button>
                     </div>
 
 
                 </div>
 
             </div>
+            
         </div>
     );
 };
