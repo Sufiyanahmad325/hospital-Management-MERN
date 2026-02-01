@@ -15,7 +15,7 @@ const ChangeDoctorDetails = () => {
     const { doctorId } = useParams();
     const navigate = useNavigate()
     const {totalDepartments} = useSelector((state) => state.hospitalManagement);
-
+    
 
     const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
@@ -277,7 +277,12 @@ const ChangeDoctorDetails = () => {
                 </div>
 
             </div>
-            
+
+            <div className={`${isLoading ? ' w-full fixed inset-0  flex flex-col items-center justify-center' : 'hidden'}`}>
+                <span className="w-10 h-10 rounded-full border-4 border-gray-300 border-t-black animate-spin"></span>
+                <span>Loading</span>
+            </div>
+
         </div>
     );
 };
