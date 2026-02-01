@@ -133,13 +133,21 @@ export const getAllPatients = async (req, res) => {
 
 export const getAllDoctorAppointments = asyncHandler(async (req, res) => {
   const { _id } = req.user; // it is coming from verifyJWT middleware
-  // 1️⃣ Find doctor profile
+  // Find doctor profile
   const admin = await User.findOne({ _id: _id });
   if (!admin) {
     return res.status(404).json({ message: "Admin profile not found" });
   }
-  // 2️⃣ Get appointments for this doctor
-  const appointments = await Appointment.find()
+
+  // get today date
+  const date = new Date().toISOString().split("T")[0];
+
+  //  Get appointments for this doctor
+  const appointments = await Appointment.find({
+    status: { $in: ['pending', 'confirmed', 'completed', 'cancelled by admin'] },
+    date: { $gte: date },
+    
+  })
     .populate(
       { path: 'patientId', select: 'name' }
     )
