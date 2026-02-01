@@ -27,6 +27,7 @@ import PatientProfile from "../pages/patient/Profile";
 import Login from "../pages/auth/login";
 import UpdatePatientProfile from "../pages/patient/UpdatePatientProfile";
 import RegisterPatient from "../pages/auth/RegisterPatient";
+import ChangeDoctorDetails from "../pages/admin/ChangeDoctorDetails";
 
 const AppRoutes = () => {
   return (
@@ -45,6 +46,7 @@ const AppRoutes = () => {
         <Route path="doctors" element={<Doctors />} />
         <Route path="patients" element={<Patients />} />
         <Route path="appointments" element={<AdminAppointments />} />
+        <Route path="change-doctor-details/:doctorId" element={<ChangeDoctorDetails />} />
       </Route>
 
       {/* 🩺 Doctor */}
