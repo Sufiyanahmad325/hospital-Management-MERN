@@ -27,7 +27,7 @@ userSchema.pre("save", async function () {
 userSchema.methods.generateToken = function () {
     return jwt.sign({ _id: this._id, role: this.role }, 
         process.env.ACCESS_TOKEN_SECRET,
-         { expiresIn: "7d" });
+         { expiresIn: process.env.ACCESS_TOKEN_EXPIRY });
 };
 
 
