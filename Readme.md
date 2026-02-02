@@ -21,7 +21,7 @@ This is a **Full-Stack Hospital Management System** built using **React.js**, **
 - Add/Edit/Delete **Departments**.
 - Onboard **Doctors** with:
 
-  - Auto-generated temporary password.
+  - Auto-generated password.
   - Assign departments, available days, and 15-minute time slots (e.g., 11:00 AM - 04:00 PM).
 
 - Edit doctor details and reset passwords.
