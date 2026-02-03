@@ -128,6 +128,10 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
+ADMIN_NAME=Admin_name
+ADMIN_EMAIL=Admin_EmailId
+ADMIN_PASSWORD=Admin_password
+
 ```
 
 ---
