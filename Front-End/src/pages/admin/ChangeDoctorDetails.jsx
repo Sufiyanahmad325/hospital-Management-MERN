@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllDoctors, getAllDepartments, getDoctorDetailsByAdmin, editDoctorDetailsByAdmin, changeDoctorPasswordByAdmin } from "../../reduxtollkit/hospitalManagementSlice";
+import { getAllDoctors, getAllDepartments, getDoctorDetailsByAdmin, editDoctorDetailsByAdmin, changeDoctorPasswordByAdmin, getAllDoctorAppointments } from "../../reduxtollkit/hospitalManagementSlice";
 import { useNavigate, useParams } from "react-router-dom";
 
 const availableDaysList = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -42,6 +42,7 @@ const ChangeDoctorDetails = () => {
             const res = await dispatch(editDoctorDetailsByAdmin({ doctorId, doctorDetails: form })).unwrap()
             if (res.success) {
                 dispatch(getAllDoctors())
+                dispatch(getAllDoctorAppointments())
                 alert("Doctor details updated successfully!")
                 
                 navigate(-1)
