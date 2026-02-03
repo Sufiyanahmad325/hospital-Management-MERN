@@ -137,7 +137,7 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 **Sufiyan Ahmad**
 Full-Stack Web Developer | JavaScript | MERN Stack
 📧 [mdsufiyanahmad325@gmail.com](mailto:mdsufiyanahmad325@gmail.com)
-📍 Gopalganj, Bihar
+📍 noida, Bihar
 🔗 [GitHub Profile](https://github.com/Sufiyanahmad325)
 
 ---
