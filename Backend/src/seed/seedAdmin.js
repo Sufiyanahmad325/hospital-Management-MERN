@@ -10,10 +10,10 @@ export const seedAdmin = async () => {
     }
 
     await User.create({
-      name: "Super Admin",
-      email: "admin@hospital.com",
-      password: "Admin@123",
-      role: "admin",
+      name: process.env.ADMIN_NAME ,
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD,
+      role: "admin",  
     });
 
     console.log("Admin created successfully");
