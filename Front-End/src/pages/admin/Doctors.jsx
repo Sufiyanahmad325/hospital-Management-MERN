@@ -2,309 +2,229 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addDoctor, getAllDoctors } from "../../reduxtollkit/hospitalManagementSlice";
 import { NavLink } from "react-router-dom";
+import { FaUserMd, FaTable, FaUserPlus } from "react-icons/fa";
 
 const Doctors = () => {
+  const specialization = [
+    "Interventional Cardiology", "Pediatric Cardiology", "Electrophysiology", "Heart Failure Specialist", "Preventive Cardiology",
+    "Neurologist", "Neurosurgeon", "Neurocritical Care Specialist",
+    "Gastroenterologist", "Hepatologist",
+  ];
 
-  const specialization = ["Interventional Cardiology",
-
-    "Pediatric Cardiology",
-
-    "Electrophysiology",
-
-    "Heart Failure Specialist",
-
-    "Preventive Cardiology",
-
-
-
-    // 🧠 Brain
-
-    "Neurologist",
-
-    "Neurosurgeon",
-
-    "Neurocritical Care Specialist",
-
-
-
-    // 🍽️ Stomach
-
-    "Gastroenterologist",
-
-    "Hepatologist",
-
-  ]
-  const [doctorLoginDetails, setDoctorLoginDetails] = useState({})
+  const [doctorLoginDetails, setDoctorLoginDetails] = useState({});
   const slots = [
-    "11:00 AM",
-    "11:15 AM",
-    "11:30 AM",
-    "11:45 AM",
-    "12:00 PM",
-    "12:15 PM",
-    "12:30 PM",
-    "12:45 PM",
-    "01:00 PM",
-    "01:15 PM",
-    "01:30 PM",
-    "01:45 PM",
-    "02:00 PM",
-    "02:15 PM",
-    "02:30 PM",
-    "02:45 PM",
-    "03:00 PM",
-    "03:15 PM",
-    "03:30 PM",
-    "03:45 PM",
-    "04:00 PM"
-  ]
-  const { totalDepartments, totalDoctors } = useSelector((state) => state.hospitalManagement)
-  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false)
+    "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM",
+    "12:30 PM", "12:45 PM", "01:00 PM", "01:15 PM", "01:30 PM", "01:45 PM",
+    "02:00 PM", "02:15 PM", "02:30 PM", "02:45 PM", "03:00 PM", "03:15 PM",
+    "03:30 PM", "03:45 PM", "04:00 PM"
+  ];
+
+  const { totalDepartments, totalDoctors } = useSelector((state) => state.hospitalManagement);
+  const [addSuccessfullyDoctor, setAddSuccessfullyDoctor] = useState(false);
   const [doctorFrom, setDoctorFrom] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    departmentId: "",
-    specialization: "",
-    description: "",
-    experience: "",
-    availableDays: [],
-    availableSlots: []
-  })
+    name: "", email: "", phone: "", departmentId: "", specialization: "",
+    description: "", experience: "", availableDays: [], availableSlots: []
+  });
 
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleAddDoctor = async () => {
-    // 🔴 BASIC VALIDATION
     if (!doctorFrom.name.trim()) {
       alert("Doctor name is required");
       return;
     }
-
     if (!doctorFrom.email.trim()) {
       alert("Email is required");
       return;
     }
-
     if (!doctorFrom.phone.trim()) {
       alert("Phone number is required");
       return;
     }
-
     if (!doctorFrom.departmentId) {
       alert("Please select department");
       return;
     }
-
     if (!doctorFrom.specialization) {
       alert("Please select specialization");
       return;
     }
-
     if (!doctorFrom.experience || doctorFrom.experience <= 0) {
       alert("Experience must be greater than 0");
       return;
     }
-
     if (doctorFrom.availableDays.length === 0) {
       alert("Please select available days");
       return;
     }
-
     if (doctorFrom.availableSlots.length === 0) {
       alert("Please select available slots");
       return;
     }
 
-    // 🟢 API CALL
     try {
       const response = await dispatch(addDoctor(doctorFrom)).unwrap();
-
       setAddSuccessfullyDoctor(true);
-
-      setDoctorLoginDetails(response.loginCredentials)
-
-      dispatch(getAllDoctors())
-      // 🔄 RESET FORM
+      setDoctorLoginDetails(response.loginCredentials);
+      dispatch(getAllDoctors());
       setDoctorFrom({
-        name: "",
-        email: "",
-        phone: "",
-        departmentId: "",
-        specialization: "",
-        description: "",
-        experience: "",
-        availableDays: [],
-        availableSlots: []
+        name: "", email: "", phone: "", departmentId: "", specialization: "",
+        description: "", experience: "", availableDays: [], availableSlots: []
       });
-
     } catch (error) {
       alert(error?.message || "Something went wrong");
     }
   };
 
   return (
-
-    <div className="h-screen bg-blue-400 text-gray-800 overflow-y-auto w-full sm:w-[75vw] p-6 custom-scrollbar">
-
+    <div className="h-screen bg-[#b3d4f6] text-gray-800 overflow-y-auto w-full sm:w-[75vw] p-6 custom-scrollbar">
+      
       {/* PAGE TITLE */}
-      <h1 className="text-2xl font-bold mb-4 text-white">
-        Doctors Management
-      </h1>
+      <div className="flex items-center gap-3 mb-6">
+        <FaUserMd className="text-3xl text-blue-600" />
+        <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
+          Doctors Management
+        </h1>
+      </div>
 
       {/* ================= ADD DOCTOR FORM ================= */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-lg font-semibold text-blue-600 mb-4">
-          Add New Doctor
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <h2 className="text-lg font-bold text-blue-600 mb-5 flex items-center gap-2">
+          <FaUserPlus /> Add New Doctor
         </h2>
 
         {/* BASIC INFO */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, name: e.target.value }))} placeholder="Doctor Name" className="border p-2 rounded focus:outline-blue-400" />
-          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, email: e.target.value }))} placeholder="Email" className="border p-2 rounded focus:outline-blue-400" />
-          <input onChange={(e) => setDoctorFrom(prev => ({ ...prev, phone: e.target.value }))} placeholder="Phone Number" className="border p-2 rounded focus:outline-blue-400" />
-
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input value={doctorFrom.name} onChange={(e) => setDoctorFrom(prev => ({ ...prev, name: e.target.value }))} placeholder="Doctor Name" className="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 transition-all" />
+          <input value={doctorFrom.email} onChange={(e) => setDoctorFrom(prev => ({ ...prev, email: e.target.value }))} placeholder="Email" className="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 transition-all" />
+          <input value={doctorFrom.phone} onChange={(e) => setDoctorFrom(prev => ({ ...prev, phone: e.target.value }))} placeholder="Phone Number" className="border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 transition-all" />
         </div>
 
-        {/* // Department */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+          {/* Department */}
+          <div>
+            <label className="text-xs font-bold text-gray-400 ml-1 uppercase">Department</label>
+            <select value={doctorFrom.departmentId} onChange={(e) => setDoctorFrom(prev => ({ ...prev, departmentId: e.target.value }))} className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 mt-1">
+              <option value="">Select Department</option>
+              {totalDepartments?.map((ele, ind) => (
+                <option key={ind} value={ele._id}>{ele.nameOfDepartment}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="mt-4">
-          <p className="p-1 font-medium">Departments</p>
-          <select name="" id="" onChange={(e) => setDoctorFrom(prev => ({ ...prev, departmentId: e.target.value }))} className="border border-black w-full p-2 rounded-md focus:outline-blue-400">
-            <option value="">Departments</option>
-            {
-              totalDepartments?.map((ele, ind) => (
-                <option className="bg-green-200" key={ind} value={ele._id}>{ele.nameOfDepartment}</option>
-              ))
-            }
-          </select>
+          {/* Specialization */}
+          <div>
+            <label className="text-xs font-bold text-gray-400 ml-1 uppercase">Specialization</label>
+            <select value={doctorFrom.specialization} onChange={(e) => setDoctorFrom(prev => ({ ...prev, specialization: e.target.value }))} className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 mt-1">
+              <option value="">Select Specialization</option>
+              {specialization?.map((option, ind) => (
+                <option key={ind} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* EXPERIENCE */}
         <div className="mt-4">
-          <p className="mb-1 font-medium">Experience (Years)</p>
-          <input placeholder="Experience" onChange={(e) =>
-            setDoctorFrom(prev => ({ ...prev, experience: Number(e.target.value) }))
-          } className="border p-2 rounded w-full focus:outline-blue-400" />
-        </div>
-
-        {/* SPECIALIZATION DROPDOWN */}
-        <div className="mt-4">
-          <p className="mb-1 font-medium">Specialization</p>
-          <select onChange={(e) => setDoctorFrom(prev => ({ ...prev, specialization: e.target.value }))} className="  border p-2 rounded w-full focus:outline-blue-400">
-            <option value="">specialization</option>
-            {
-              specialization?.map((option, ind) => (
-                <option className="bg-green-200" value={option} key={ind}>{option}</option>
-              ))
-            }
-          </select>
+          <label className="text-xs font-bold text-gray-400 ml-1 uppercase">Experience (Years)</label>
+          <input type="number" value={doctorFrom.experience} placeholder="Years of Experience" onChange={(e) => setDoctorFrom(prev => ({ ...prev, experience: Number(e.target.value) }))} className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 mt-1" />
         </div>
 
         {/* AVAILABLE DAYS */}
-        <div className="mt-4">
-          <p className="font-medium mb-2">Available Days</p>
+        <div className="mt-6 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+          <p className="font-bold text-blue-700 text-sm mb-3">Available Days</p>
           <div className="flex flex-wrap gap-4">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-              <label key={day} className="flex items-center gap-1 cursor-pointer">
+              <label key={day} className="flex items-center gap-2 cursor-pointer group">
                 <input
-                  value={day}
+                  checked={doctorFrom.availableDays.includes(day)}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setDoctorFrom((prev) => ({
-                        ...prev, availableDays: [...prev.availableDays, day]
-                      }))
+                      setDoctorFrom((prev) => ({ ...prev, availableDays: [...prev.availableDays, day] }))
                     } else {
-                      let a = doctorFrom.availableDays.filter(ele => ele != day)
-                      setDoctorFrom(prev => ({ ...prev, availableDays: [...a] }))
+                      setDoctorFrom(prev => ({ ...prev, availableDays: prev.availableDays.filter(ele => ele !== day) }))
                     }
-
                   }}
-
-                  type="checkbox" className="w-4 h-4" /> {day}
+                  type="checkbox" className="w-4 h-4 accent-blue-600" />
+                <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{day}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* //  AvailableTimeSlots */}
-        <div className="mt-4">
-          <p>Available Time Slots</p>
-          <div className=" w-full flex gap-4 flex-wrap">
-            {
-              slots.map((time, ind) => (
-                <label key={ind} id={ind} className="flex items-center justify-center bg-gray-100" >
-                  <input
-                    value={time} type="checkbox" id={ind}
-                    className="w-4 h-4"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setDoctorFrom(prev => ({
-                          ...prev, availableSlots: [...prev.availableSlots, time]
-                        }))
-                      } else {
-                        let a = doctorFrom.availableSlots.filter(ele => ele != time)
-                        setDoctorFrom(prev => ({ ...prev, availableSlots: [...a] }))
-                      }
-                    }}
-                  />
-                  {time}
-                </label>
-              ))
-            }
+        {/* AVAILABLE TIME SLOTS */}
+        <div className="mt-6 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+          <p className="font-bold text-indigo-700 text-sm mb-3">Available Time Slots</p>
+          <div className="flex gap-2 flex-wrap max-h-32 overflow-y-auto p-1 custom-scrollbar">
+            {slots.map((time, ind) => (
+              <label key={ind} className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all cursor-pointer ${doctorFrom.availableSlots.includes(time) ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-400'}`}>
+                <input
+                  checked={doctorFrom.availableSlots.includes(time)}
+                  value={time} type="checkbox" 
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setDoctorFrom(prev => ({ ...prev, availableSlots: [...prev.availableSlots, time] }))
+                    } else {
+                      setDoctorFrom(prev => ({ ...prev, availableSlots: prev.availableSlots.filter(ele => ele !== time) }))
+                    }
+                  }}
+                />
+                <span className="text-[10px] font-bold">{time}</span>
+              </label>
+            ))}
           </div>
         </div>
 
         {/* DESCRIPTION */}
-        <div className="mt-4">
-          <p className="mb-1 font-medium">Description</p>
+        <div className="mt-6">
+          <label className="text-xs font-bold text-gray-400 ml-1 uppercase">Doctor Bio / Description</label>
           <textarea
-            placeholder="Doctor Description"
+            placeholder="Tell us about the doctor's background..."
             value={doctorFrom.description}
-            onChange={(e) =>
-              setDoctorFrom(prev => ({ ...prev, description: e.target.value }))
-            }
-
-            className="border p-2 rounded w-full h-24 focus:outline-blue-400"
+            onChange={(e) => setDoctorFrom(prev => ({ ...prev, description: e.target.value }))}
+            className="w-full border border-gray-200 p-3 rounded-xl h-24 focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50 mt-1 transition-all"
           />
         </div>
 
-        <button className="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-all" onClick={(e) => handleAddDoctor()}>
-          Add Doctor
+        <button className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-blue-100 transition-all active:scale-95" onClick={handleAddDoctor}>
+          Register Doctor
         </button>
       </div>
 
-      {/* =================   DOCTORS LIST  ================================================ */}
-      <div className="bg-white p-6 rounded-lg shadow-md mb-10">
-        <h2 className="text-lg font-semibold text-green-600 mb-4">
-          All Doctors
-        </h2>
+      {/* ================= DOCTORS LIST ================= */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-10">
+        <div className="p-5 border-b border-gray-50 flex items-center gap-2 bg-gray-50/50">
+          <FaTable className="text-green-600" />
+          <h2 className="text-lg font-bold text-gray-700">All Registered Doctors</h2>
+        </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full border border-gray-200">
-            <thead className="bg-blue-100">
-              <tr>
-                <th className="border p-2 text-left">Name</th>
-                <th className="border p-2 text-left">Email</th>
-                <th className="border p-2 text-left">Department</th>
-                <th className="border p-2 text-left">Specialization</th>
-                <th className="border p-2 text-left">Experience</th>
-                <th className="border p-2 text-left">Days</th>
-                <th className="border p-2 text-left">Edit Details</th>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-white text-left border-b border-gray-100">
+                <th className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Doctor Info</th>
+                <th className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Department</th>
+                <th className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Specialization</th>
+                <th className="p-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-50">
               {totalDoctors?.map((doc, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="border p-2">{doc.user_id.name}</td>
-                  <td className="border p-2">{doc.user_id.email}</td>
-                  <td className="border p-2">{doc.department.nameOfDepartment}</td>
-                  <td className="border p-2">{doc.specialization}</td>
-                  <td className="border p-2">{doc.experience}</td>
-                  <td className="border p-2">{doc.availableDays.join(',')}</td>
-                  <td className="border p-2 flex justify-center">
-                    <NavLink to={`/admin/change-doctor-details/${doc._id}`} className="bg-gray-200 px-5 rounded-2xl">Edit</NavLink>
+                <tr key={index} className="hover:bg-blue-50/30 transition-colors">
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-gray-800">{doc.user_id.name}</span>
+                      <span className="text-xs text-gray-400">{doc.user_id.email}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-sm font-medium text-gray-600">{doc.department.nameOfDepartment}</td>
+                  <td className="p-4">
+                    <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold text-gray-500 uppercase">{doc.specialization}</span>
+                  </td>
+                  <td className="p-4 text-center">
+                    <NavLink to={`/admin/change-doctor-details/${doc._id}`} className="inline-block bg-blue-50 text-blue-600 px-5 py-2 rounded-lg font-bold text-xs hover:bg-blue-600 hover:text-white transition-all">
+                      Edit
+                    </NavLink>
                   </td>
                 </tr>
               ))}
@@ -313,34 +233,30 @@ const Doctors = () => {
         </div>
       </div>
 
-      {
-        addSuccessfullyDoctor && (
-          <div className="fixed inset-0  flex items-center justify-center z-50">
-
-            <div className="bg-green-200 w-[90%] sm:w-[30%] p-6 rounded-lg shadow-lg text-center">
-
-              <h2 className="text-xl font-bold text-green-800 mb-3">
-                Doctor has been Added Successfully
-              </h2>
-              <h2 className="text-md font-bold text-green-800 mb-3">
-                Doctor email {doctorLoginDetails.email}
-              </h2>
-              <h2 className="text-md font-bold text-green-800 mb-3">
-                Doctor password {doctorLoginDetails.password}
-              </h2>
-
-              <button
-                className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold"
-                onClick={(e) => setAddSuccessfullyDoctor(false)}
-              >
-                OK
-              </button>
-
+      {/* SUCCESS MODAL (CREDENTIALS) */}
+      {addSuccessfullyDoctor && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl text-center border border-green-100">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaUserPlus size={30} />
             </div>
+            <h2 className="text-xl font-black text-gray-800 mb-4">Doctor Registered!</h2>
+            <div className="bg-gray-50 p-4 rounded-2xl text-left space-y-3 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Email:</span>
+                <span className="font-bold text-gray-700">{doctorLoginDetails.email}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Password:</span>
+                <span className="font-bold text-gray-700 font-mono">{doctorLoginDetails.password}</span>
+              </div>
+            </div>
+            <button className="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition-all" onClick={() => setAddSuccessfullyDoctor(false)}>
+              Got it, Close
+            </button>
           </div>
-        )
-      }
-
+        </div>
+      )}
     </div>
   );
 };
