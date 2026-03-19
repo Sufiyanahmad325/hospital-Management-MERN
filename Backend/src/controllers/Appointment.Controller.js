@@ -140,7 +140,7 @@ export const getUpComingAppointment = asyncHandler(async (req, res) => {
     .populate({ path: 'patientId', select: 'name' })
 
   if (!upComingAppointments || upComingAppointments.length == 0) {
-    throw new ApiError(404, 'Up Coming Appointment does not Available')
+    new ApiResponse(201, [], 'there is not cancel appointment')
   }
 
   return res.status(201).json(
