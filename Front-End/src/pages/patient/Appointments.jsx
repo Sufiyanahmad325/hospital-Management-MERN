@@ -11,26 +11,23 @@ const Appointments = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (category == "upcoming" && upComingAppointment.length !== 0) {
-      setFilterData(upComingAppointment)
-    }
-    if (category == 'cancelled' && cancelledAppointment.length !== 0) {
-      setFilterData(cancelledAppointment)
-    }
-    if (category == 'completed' && completedAppointment.length !== 0) {
-      setFilterData(completedAppointment)
-    }
-  }, [upComingAppointment, cancelledAppointment, completedAppointment, category])
+  if (category === "upcoming") {
+    setFilterData(upComingAppointment || []);
+  } else if (category === "cancelled") {
+    setFilterData(cancelledAppointment || []);
+  } else if (category === "completed") {
+    setFilterData(completedAppointment || []);
+  }
+}, [upComingAppointment, cancelledAppointment, completedAppointment, category]);
 
 
   const handleCancelledAppointment =async(id)=>{
-    console.log(id)
      let res = await dispatch(cancelAppointment(id)).unwrap()
      console.log("kay sir =====> ",res)
      if(res.success){
-        dispatch(getUpComingAppointment())
-        dispatch(getAllCancelledAppointment())
-     }
+       dispatch(getAllCancelledAppointment())
+       dispatch(getUpComingAppointment())
+      }
   }
 
 
@@ -73,7 +70,7 @@ const Appointments = () => {
 
         {/* CARD 1 */}
         {
-          filterData?.map((ele) => (
+          filterData.length > 0 && filterData?.map((ele) => (
             <div key={ele?._id} className="bg-white rounded-xl shadow p-5 space-y-3">
               <div className="flex justify-between">
                 <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
