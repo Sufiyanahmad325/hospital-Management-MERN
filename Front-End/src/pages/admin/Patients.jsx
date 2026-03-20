@@ -50,13 +50,13 @@ const handleDeletePatient =async(id)=>{
   }, []);
 
   return (
-    <div className="h-screen bg-blue-400 p-6 w-full sm:w-[75vw] overflow-y-auto">
+    <div className="h-screen bg-[#b3d4f6] p-6 w-full sm:w-[75vw] overflow-y-auto">
       
       {/* HEADER */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-200">Patient Directory</h1>
-          <p className="text-gray-100 text-sm">Total Patients: {patients.length}</p>
+          <h1 className="text-2xl font-bold text-black">Patient Directory</h1>
+          <p className="text-black text-sm">Total Patients: {patients.length}</p>
         </div>
        
       </div>
