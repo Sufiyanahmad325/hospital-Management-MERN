@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { completeAppointment, getAllTodayAppointments, getTodayAllPendingAppointment } from "../../reduxtollkit/doctorControlSlice";
+import { completeAppointment, getAllTodayAppointments, getTodayAllPendingAppointment, getAllDayAppointment } from "../../reduxtollkit/doctorControlSlice";
 
 const DoctorDashboard = () => {
 
@@ -18,8 +18,11 @@ const DoctorDashboard = () => {
   const handleUpdate = async (id) => {
     let res = await dispatch(completeAppointment(id)).unwrap()
     if (res.success) {
-      dispatch(getAllTodayAppointments())
-      dispatch(getTodayAllPendingAppointment())
+      if (res.success) {
+        dispatch(getAllTodayAppointments())
+        dispatch(getTodayAllPendingAppointment())
+        dispatch(getAllDayAppointment()) 
+      }
     }
   }
 
