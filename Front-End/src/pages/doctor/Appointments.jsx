@@ -8,7 +8,6 @@ const Appointments = () => {
 
   const dispatch = useDispatch()
 
-  console.log(today)
 
   const [filter, setFilter] = useState("today");
 
@@ -23,6 +22,7 @@ const Appointments = () => {
       dispatch(getTodayAllPendingAppointment())
       dispatch(getAllTodayAppointments())
       dispatch(getAllDayAppointment())
+      
     }
   };
 
