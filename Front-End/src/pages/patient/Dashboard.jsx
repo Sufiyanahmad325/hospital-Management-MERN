@@ -67,9 +67,11 @@ const Dashboard = () => {
 
       {/* ================= NEXT APPOINTMENT ================= */}
       <div className="bg-white rounded-3xl shadow-md border border-blue-100 p-6">
-        <h2 className="text-xl font-bold text-blue-700 mb-4">
+          <h2 className="text-xl font-bold text-blue-700 mb-4">
           Next Appointment
         </h2>
+        {
+          upComingAppointment.length > 0 ? <>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-gradient-to-r from-blue-50 to-sky-50 p-4 rounded-2xl border border-blue-100">
           <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -101,6 +103,11 @@ const Dashboard = () => {
             </span>
           </div>
         </div>
+          </>:
+          <>
+          <div>There is not any Upcoming Appointment</div>
+          </>
+        }
       </div>
 
       {/* ================= QUICK ACTIONS ================= */}
