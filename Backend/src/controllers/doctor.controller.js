@@ -101,7 +101,7 @@ export const getAllDayAppointment = asyncHandler(async (req, res) => {
   if (!appointments.length) {
     return res
       .status(404)
-      .json(new ApiResponse(404, null, "No upcoming appointments found"));
+      .json(new ApiResponse(404, [], "No upcoming appointments found"));
   }
 
   return res
