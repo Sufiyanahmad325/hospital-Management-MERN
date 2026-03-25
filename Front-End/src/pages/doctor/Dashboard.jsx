@@ -8,7 +8,7 @@ const DoctorDashboard = () => {
 
   const { doctorTodayAllAppointments, doctorTodayPendingAppointments, doctorAllDayTotalAppointments } = useSelector((state) => state.doctorControl)
   const dispatch = useDispatch()
-  console.log('doctorTodayAllAppointments', doctorTodayAllAppointments)
+  console.log('doctorAllDayTotalAppointments', doctorAllDayTotalAppointments)
 
   useEffect(() => {
     let a = doctorTodayAllAppointments.filter(ele => ele.status === 'completed')
@@ -78,7 +78,7 @@ const DoctorDashboard = () => {
 
         <div className="bg-white p-4 rounded-lg shadow">
           <p className="text-sm text-gray-500">My All Day Appointment</p>
-          <h2 className="text-2xl font-bold text-purple-600">{doctorAllDayTotalAppointments.length || "00"}</h2>
+          <h2 className="text-2xl font-bold text-purple-600">{doctorAllDayTotalAppointments?.length || "00"}</h2>
         </div>
 
       </div>
