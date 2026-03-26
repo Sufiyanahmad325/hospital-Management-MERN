@@ -27,7 +27,7 @@ const Appointments = () => {
   };
 
   // ✅ Filter logic (easy)
-  const filteredAppointments = doctorAllDayTotalAppointments.filter((app) => {
+  const filteredAppointments = doctorAllDayTotalAppointments?.filter((app) => {
     if (filter === "today") {
       return app.date === today && app.status === "pending";
     }
@@ -71,14 +71,14 @@ const Appointments = () => {
 
       {/* APPOINTMENT CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredAppointments.length === 0 ? (
+        {filteredAppointments?.length === 0 ? (
           <div className="col-span-full text-center bg-white p-8 rounded shadow">
             <p className="text-gray-400">
               No appointments found
             </p>
           </div>
         ) : (
-          filteredAppointments.map((app) => (
+          filteredAppointments?.map((app) => (
             <div
               key={app._id}
               className="bg-white rounded-xl shadow p-5 space-y-3 hover:shadow-md transition"
